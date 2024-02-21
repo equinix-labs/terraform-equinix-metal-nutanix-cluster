@@ -45,42 +45,39 @@ To view examples for how you can leverage this module, please see the [examples]
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3 |
-| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.8.0 |
+No requirements.
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.8.1 |
+| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | n/a |
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_inline-module"></a> [inline-module](#module\_inline-module) | ./modules/inline-module | n/a |
+No modules.
 
 ## Resources
 
 | Name | Type |
 |------|------|
-| [equinix_metal_device.example](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
+| [equinix_metal_device.bastion](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
+| [equinix_metal_device.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
+| [equinix_metal_port.bastion_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
+| [equinix_metal_port.nutanix_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
+| [equinix_metal_vlan.test](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vlan) | resource |
+| [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_example_auth_token"></a> [example\_auth\_token](#input\_example\_auth\_token) | The example auth token value defines what will be included in the example resource in main.tf. This example is descriptive. | `string` | n/a | yes |
-| <a name="input_example_project_id"></a> [example\_project\_id](#input\_example\_project\_id) | The example project id value defines what will be included in the example resource in main.tf. This example is descriptive. | `string` | n/a | yes |
+| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | n/a | `any` | n/a | yes |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | n/a | `string` | `"ntnx-demo"` | no |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_example_device_hostname"></a> [example\_device\_hostname](#output\_example\_device\_hostname) | The example output. In practice, output value reference implicit resource attributes declared in main.tf |
-| <a name="output_example_gateway_id"></a> [example\_gateway\_id](#output\_example\_gateway\_id) | The example output. In practice, output value reference implicit resource attributes declared in main.tf |
+No outputs.
 <!-- END_TF_DOCS -->
 ## Contributing
 
@@ -89,4 +86,3 @@ If you would like to contribute to this module, see [CONTRIBUTING](CONTRIBUTING.
 ## License
 
 Apache License, Version 2.0. See [LICENSE](LICENSE).
-<!-- TEMPLATE: Expand this section with any additional information or requirements. -->

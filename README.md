@@ -1,69 +1,41 @@
-# terraform-equinix-template
+# Nutanix Cluster on Equinix Metal
 
-<!-- TEMPLATE: Review all "TEMPLATE" comments and remove them when applied. -->
-<!-- TEMPLATE: replace "template" with the name of your project. The prefix "terraform-equinix-" informs the Terraform registry that this project is a Terraform module associated with the Equinix provider, preserve this prefix. -->
-[![Experimental](https://img.shields.io/badge/Stability-Experimental-red.svg)](https://github.com/equinix-labs/standards#about-uniform-standards)
-[![run-pre-commit-hooks](https://github.com/equinix-labs/terraform-equinix-template/actions/workflows/pre-commit.yaml/badge.svg)](https://github.com/equinix-labs/terraform-equinix-template/actions/workflows/pre-commit.yaml)
-[![generate-terraform-docs](https://github.com/equinix-labs/terraform-equinix-template/actions/workflows/documentation.yaml/badge.svg)](https://github.com/equinix-labs/terraform-equinix-template/actions/workflows/documentation.yaml)
+This Terraform module will deploy a demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. The cluster IPAM and Internet Access is managed by a Rocky bastion/gateway node.
 
-`terraform-equinix-template` is a minimal Terraform module that utilizes [Terraform providers for Equinix](https://registry.terraform.io/namespaces/equinix) to provision digital infrastructure and demonstrate higher level integrations.
+## Acronyms and Terms
 
-<!-- TEMPLATE: Insert an image here of the infrastructure diagram. You can generate a starting image using instructions found at https://www.terraform.io/docs/cli/commands/graph.html#generating-images -->
+* AOS: Acropolis Operating System
+* NOS: Nutanix Operating System (Used interchangably with AOS)
+* AHV: AOS Hypervisor
+* Phoenix: The AOS/NOS Installer
+* CVM: Cluster Virtual Machine
+* Prism: AOS Cluster Web UI
 
-## Usage
+## Nutanix Installation in a nutshell
 
-This project is experimental and supported by the user community. Equinix does not provide support for this project.
+For those who are unfamiliar with Nutanix. Nutanix is a virtual machine management suite, similar to VMWare ESXi.
 
-Install Terraform using the [tfenv](https://github.com/tfutils/tfenv) utility.
+Nutanix is typically deployed in a private network without public IPs assigned directly to the host.
+This experience is different than what many cloud users would expect in an OS deployment.
 
-This project may be forked, cloned, or downloaded and modified as needed as the base in your integrations and deployments.
+Due to this, we'll be deploying Nutanix with only private management IPs and later converting the nodes to full Layer-2.
 
-This project may also be used as a [Terraform module](https://learn.hashicorp.com/collections/terraform/modules).
+To allow access to the internet and make it easier to access these hosts, we'll be deploying a server in Hybrid networking mode to act as a router and jump box.
 
-To use this module in a new project, create a file such as:
+To begin, we'll start by provisioning a c3.small which has two NICs. Allowing us to have one in layer-3 with a public IP,
+and one in layer-2 to access the internal layer-2 network.
 
-```hcl
-# main.tf
-terraform {
-  required_providers {
-    equinix = {
-      source = "equinix/equinix"
-    }
-}
+## Manual Installation
 
-module "example" {
-  source = "github.com/equinix-labs/template"
-  # TEMPLATE: replace "template" with the name of the repo after the terraform-equinix- prefix.
+See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) to install by hand. Otherwise, skip to the following section to let Terraform do all the work.
 
-  # Published modules can be sourced as:
-  # source = "equinix-labs/template/equinix"
-  # See https://www.terraform.io/docs/registry/modules/publish.html for details.
+## Terraform installation
 
-  # version = "0.1.0"
-
-  # TEMPLATE: insert required variables here
-}
+```sh
+terraform init
+eval $(metal env -o terraform --export)
+terraform apply
 ```
-
-Install [pre-commit](https://pre-commit.com/#install) with its prerequesites: [python](https://docs.python.org/3/using/index.html) and [pip](https://pip.pypa.io/en/stable/installation/).
-
-Configure pre-commit: `pre-commit install`.
-
-Install required packages: [tflint](https://github.com/terraform-linters/tflint), [tfsec](https://aquasecurity.github.io/tfsec/v1.0.11/getting-started/installation/), [shfmt](https://github.com/mvdan/sh), [shellcheck](https://github.com/koalaman/shellcheck), and [markdownlint](https://github.com/markdownlint/markdownlint).
-
-Run `terraform init -upgrade` and `terraform apply`.
-
-## Module Documentation
-
-The main README.md, the modules README.md and the examples README.md are populated by [terraform-docs worflow job](.github/workflows/documentation.yaml). The following sections are appended between the terraform-docs delimeters: Requiremenents, Providers, Modules, Resources, Inputs, and Outputs.
-
-## Module Release and Changelog Generation
-
-The module git release and [changelog](CHANGELOG.md) are generated by the [release workflow job](.github/workflows/release.yaml). The release worflow follows the [conventional commits convention](https://www.conventionalcommits.org/). To submit a commit, please follow the [commit message format guidelines](https://www.conventionalcommits.org/en/v1.0.0/#specification). This job is set to run manually by default.
-
-Example commit message: `fix: disabled log generation for system services`
-
-For more examples, please see [conventional commit message examples](https://www.conventionalcommits.org/en/v1.0.0/#examples).
 
 ## Examples
 

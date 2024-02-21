@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export EMAPI_AUTH_TOKEN=${var.metal_auth_token}
+export L2GATEWAY_VLAN_DESCRIPTION=${var.metal_vlan_description}
+
+curl https://artifacts.platformequinix.com/images/nutanix/misc/scripts/install-l2gateway.sh | sh 2>&1 | tee /root/install-l2gw.log
+
+

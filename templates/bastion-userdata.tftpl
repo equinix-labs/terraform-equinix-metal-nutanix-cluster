@@ -3,6 +3,8 @@
 export EMAPI_AUTH_TOKEN=${metal_auth_token}
 export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
 
+#TODO: NoSuchKey: The specified key does not exist.
+#status code: 404, request id: ..., host id: ...
 curl https://artifacts.platformequinix.com/images/nutanix/misc/scripts/install-l2gateway.sh | sh 2>&1 | tee /root/install-l2gw.log
 
 

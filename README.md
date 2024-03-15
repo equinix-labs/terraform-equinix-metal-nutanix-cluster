@@ -37,6 +37,15 @@ eval $(metal env -o terraform --export)
 terraform apply
 ```
 
+### Login
+
+```sh
+touch nutanix_rsa
+chmod 0600 nutanix_rsa
+terraform output -raw ssh_private_key > nutanix_rsa
+ssh -i nutanix_rsa root@$(terraform out -raw bastion_public_ip)
+```
+
 ## Examples
 
 To view examples for how you can leverage this module, please see the [examples](examples/) directory.

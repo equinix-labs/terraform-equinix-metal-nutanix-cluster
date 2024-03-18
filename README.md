@@ -43,7 +43,7 @@ terraform apply
 touch nutanix_rsa
 chmod 0600 nutanix_rsa
 terraform output -raw ssh_private_key > nutanix_rsa
-ssh -i nutanix_rsa root@$(terraform out -raw bastion_public_ip)
+ssh -i nutanix_rsa root@$(terraform output -raw bastion_public_ip)
 ```
 
 ## Examples

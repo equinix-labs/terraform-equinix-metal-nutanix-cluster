@@ -1,10 +1,11 @@
-#!/bin/bash
+#cloud-config
+write_files:
+  - content: |
+        #!/bin/sh
+        # Script to download and install nutanix vms onto a Rocky server
+        export EMAPI_AUTH_TOKEN=${metal_auth_token}
+        export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
 
-export EMAPI_AUTH_TOKEN=${metal_auth_token}
-export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
-
-#TODO: NoSuchKey: The specified key does not exist.
-#status code: 404, request id: ..., host id: ...
-curl https://artifacts.platformequinix.com/images/nutanix/misc/scripts/install-l2gateway.sh | sh 2>&1 | tee /root/install-l2gw.log
-
-
+        curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
+    path: /var/lib/cloud/scripts/per-once/nutanix-test.sh
+    permissions: "0755"

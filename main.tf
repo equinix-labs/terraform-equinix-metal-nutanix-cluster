@@ -1,15 +1,24 @@
+locals {
+  project_id = var.create_project ? equinix_metal_project.nutanix.*.id[0] : data.equinix_metal_project.nutanix.id
+}
+
+resource "equinix_metal_project" "nutanix" {
+  count = var.create_project ? 1 : 0
+  name = var.metal_project_name
+}
+
 data "equinix_metal_project" "nutanix" {
-  name = "devrel-marques-testing"
+  name = var.metal_project_name
 }
 
 resource "equinix_metal_vlan" "test" {
-  project_id  = data.equinix_metal_project.nutanix.id
+  project_id  = local.project_id
   description = var.metal_vlan_description
   metro       = "da"
 }
 
 resource "equinix_metal_device" "bastion" {
-  project_id = data.equinix_metal_project.nutanix.id
+  project_id = local.project_id
   hostname   = "bastion"
   user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
     "metal_auth_token" : var.metal_auth_token,
@@ -30,7 +39,7 @@ resource "equinix_metal_port" "bastion_bond0" {
 
 resource "equinix_metal_device" "nutanix" {
   count            = 1
-  project_id       = data.equinix_metal_project.nutanix.id
+  project_id       = local.project_id
   hostname         = "nutanix-devrel-test-${count.index}"
   user_data        = templatefile("${path.module}/templates/nutanix-userdata.tftpl", {})
   operating_system = "nutanix_lts_6_5"
@@ -40,7 +49,7 @@ resource "equinix_metal_device" "nutanix" {
 
 resource "equinix_metal_project_ssh_key" "ssh_key" {
   name       = "nutanix-ssh-key"
-  project_id = data.equinix_metal_project.nutanix.id
+  project_id = local.project_id
   public_key = tls_private_key.ssh_key.public_key_openssh
 }
 

@@ -1,10 +1,10 @@
 locals {
-  project_id = var.create_project ? equinix_metal_project.nutanix.*.id[0] : data.equinix_metal_project.nutanix.id
+  project_id = var.create_project ? equinix_metal_project.nutanix[*].id[0] : data.equinix_metal_project.nutanix.id
 }
 
 resource "equinix_metal_project" "nutanix" {
   count = var.create_project ? 1 : 0
-  name = var.metal_project_name
+  name  = var.metal_project_name
 }
 
 data "equinix_metal_project" "nutanix" {

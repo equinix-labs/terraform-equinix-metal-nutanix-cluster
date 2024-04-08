@@ -7,8 +7,8 @@ on:
     branches:
       - main
     paths:
-      - '**/*.tpl'
-      - '**/*.tf'
+      - "**/*.tpl"
+      - "**/*.tf"
 
 jobs:
   tf-docs:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Render terraform docs inside the main and the modules README.md files and push changes back to PR branch
         id: terraform-docs
-        uses: terraform-docs/gh-actions@v1.1.0
+        uses: terraform-docs/gh-actions@v1
         with:
           find-dir: .
           args: --sort-by required
@@ -39,10 +39,10 @@ jobs:
         if: steps.terraform-docs.outputs.num_changed != '0'
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: 'generate-terraform-docs: automated action'
+          commit-message: "generate-terraform-docs: automated action"
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          title: 'generate-terraform-docs: automated action'
+          title: "generate-terraform-docs: automated action"
           body: |
             Update terraform docs
           branch-suffix: timestamp

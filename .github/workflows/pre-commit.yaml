@@ -13,14 +13,13 @@ jobs:
   pre-commit:
     runs-on: ${{ matrix.os }}
     env:
-      TF_VERSION: ${{ matrix.tf }}
-      TFLINT_VERSION: ${{ matrix.tflint }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         os: [ubuntu-latest]
         tf: [1.7.5]
         tflint: [v0.50.3]
+        tfsec: [v1.28.5]
     permissions:
       pull-requests: write
       id-token: write
@@ -35,7 +34,7 @@ jobs:
       - name: Install tflint
         uses: terraform-linters/setup-tflint@v4
         with:
-          tflint_version: ${{ env.TFLINT_VERSION }}
+          tflint_version: ${{ matrix.tflint }}
 
       - name: Cache tflint plugin dir
         uses: actions/cache@v4
@@ -46,7 +45,7 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ matrix.tf }}
 
       - name: Config Terraform plugin cache
         run: |
@@ -68,5 +67,6 @@ jobs:
           repo: aquasecurity/tfsec
           platform: linux
           arch: x86-64
+          tag: ${{ matrix.tfsec }}
 
       - uses: pre-commit/action@v3.0.1

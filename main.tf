@@ -1,5 +1,5 @@
 locals {
-  project_id = var.create_project ? element(equinix_metal_project.nutanix[*]).id[0] : data.equinix_metal_project.nutanix.id
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : data.equinix_metal_project.nutanix.id
 }
 
 resource "equinix_metal_project" "nutanix" {

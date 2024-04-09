@@ -1,12 +1,13 @@
 variable "metal_auth_token" {
   type        = string
-  description = "Your Equinix Metal API Token"
+  description = "Equinix Metal API token."
+  sensitive   = true
 }
 
 variable "metal_vlan_description" {
   type        = string
+  description = "Description to add to created VLAN."
   default     = "ntnx-demo"
-  description = "Description added to VLAN created for your Nutanix Cluster"
 }
 
 variable "metal_project_name" {

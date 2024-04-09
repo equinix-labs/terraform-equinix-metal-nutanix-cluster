@@ -1,5 +1,5 @@
 locals {
-  project_id = var.create_project ? equinix_metal_project.nutanix[*].id[0] : data.equinix_metal_project.nutanix.id
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*]).id[0] : data.equinix_metal_project.nutanix.id
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -22,7 +22,8 @@ resource "equinix_metal_device" "bastion" {
   hostname   = "bastion"
   user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
     "metal_auth_token" : var.metal_auth_token,
-    "metal_vlan_description" : var.metal_vlan_description
+    "metal_vlan_description" : var.metal_vlan_description,
+    "metal_vlan_id" : equinix_metal_vlan.test.vxlan
   })
   operating_system    = "rocky_9"
   plan                = "c3.small.x86"

@@ -1,18 +1,23 @@
 #cloud-config
 write_files:
+%{ for file in files ~}
+  - content: ${file.content}
+    permissions: '0744'
+    path: /tmp/support-files/${file.path}
+%{ endfor ~}
   - content: |
         #!/bin/sh
         
+        find /tmp/support-files -type f -exec sh -c "base64 -d {} | tee {}" \;
+
         # Script to download and install nutanix vms onto a Rocky server
         export EMAPI_AUTH_TOKEN=${metal_auth_token}
         export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
         # export L2GATEWAY_HOST_BRIDGE_IFACE=virbr0
-
+        export REPO_BASE_URL="file:///tmp/support-files"
 
         # ifup is used in the vendor script but isn't installed on the machine by default
-        yum -y install NetworkManager-initscripts-updown
-
-        curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/libs/emapi-libs.sh > /tmp/emapi-libs.sh
+        #yum -y install NetworkManager-initscripts-updown
 
         # for some reason, need to do the bridge configuration ourselves?
         # these logs don't seem to come from the platform-nutanix scripts even
@@ -23,13 +28,13 @@ write_files:
         #   [2024-03-25 21:11:29] Notanix: Bringing up interfaces
         # Near as I can tell, whatever is logging those messages is short-circuiting
         # the part of the platform script that creates the br0 interface
-        source /tmp/emapi-libs.sh
-        emapi_create_bridge_iface br0 192.168.0.2
+        #source /tmp/support-files/test-suite/libs/emapi-libs.sh
+        #emapi_create_bridge_iface br0 192.168.0.2
  
         # seems like the platform scripts don't do this automatically?
-        ip link add link bond0 name bond0.${metal_vlan_id} type vlan id ${metal_vlan_id}
+        #ip link add link bond0 name bond0.${metal_vlan_id} type vlan id ${metal_vlan_id}
 
-        curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
+        curl $${REPO_BASE_URL}/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
 
         # With these workarounds, the platform script gets as far as creating the l2gateway vm
         # and waiting for it to be configured & running

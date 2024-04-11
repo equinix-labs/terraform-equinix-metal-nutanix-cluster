@@ -14,7 +14,10 @@ variable "metal_project_name" {
   type        = string
   description = "The name of the Metal project in which to deploy the cluster.  If create_project is false the project will be looked up by name."
 }
-
+variable "metal_organization_id" {
+  type        = string
+  description = "The ID of the Metal organization in which to create the project if create_project is true."
+}
 variable "create_project" {
   type        = bool
   default     = true

@@ -1,13 +1,9 @@
 terraform {
-  required_version = ">= 1.3"
+  required_version = ">= 1.0"
   required_providers {
     equinix = {
       source  = "equinix/equinix"
       version = ">= 1.30"
-    }
-    tls = {
-      source  = "hashicorp/tls"
-      version = ">= 4.0"
     }
   }
 }

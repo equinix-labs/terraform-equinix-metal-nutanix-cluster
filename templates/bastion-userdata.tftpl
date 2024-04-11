@@ -1,44 +1,10 @@
+## template: jinja
 #cloud-config
-write_files:
-  - content: |
-      #!/bin/sh
-
-      # Script to download and install nutanix vms onto a Rocky server
-      export EMAPI_AUTH_TOKEN=${metal_auth_token}
-      export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
-      # export L2GATEWAY_HOST_BRIDGE_IFACE=virbr0
-
-
-      # ifup is used in the vendor script but isn't installed on the machine by default
-      yum -y install NetworkManager-initscripts-updown
-
-      curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/libs/emapi-libs.sh > /tmp/emapi-libs.sh
-
-      # for some reason, need to do the bridge configuration ourselves?
-      # these logs don't seem to come from the platform-nutanix scripts even
-      # though they claim to be "Notanix" logs:
-      #   [2024-03-25 21:11:28] Notanix: Device is already in hybrid mode
-      #   [2024-03-25 21:11:29] Notanix: Found VLAN 1000
-      #   [2024-03-25 21:11:29] Notanix: Reloading interface configs
-      #   [2024-03-25 21:11:29] Notanix: Bringing up interfaces
-      # Near as I can tell, whatever is logging those messages is short-circuiting
-      # the part of the platform script that creates the br0 interface
-      source /tmp/emapi-libs.sh
-      emapi_create_bridge_iface br0 192.168.0.2
-
-      # seems like the platform scripts don't do this automatically?
-      ip link add link bond0 name bond0.${metal_vlan_id} type vlan id ${metal_vlan_id}
-
-      curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
-
-      # With these workarounds, the platform script gets as far as creating the l2gateway vm
-      # and waiting for it to be configured & running
-      # After some investigation it looks like the platform script never runs the
-      # L2 gateway install script, so we should probably copy those scripts into this
-      # repo so we can modify them as needed.
-      # Marques has a branch with most of the scripts.  This is the reference to the installer
-      # script that doesn't seem to ever be executed: https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/blob/install-sh-no-fetch/templates/l2gateway-install.sh
-      # L26C8-L26C44
-      # We'll need to copy that install script as well and may need to explicitly call it somewhere.
-    path: /var/lib/cloud/scripts/per-once/nutanix-test.sh
-    permissions: "0755"
+runcmd:
+  - |
+    cat <<EOF >> /etc/network/interfaces
+    auto bond0:{{ metal_vlan_id }}
+    iface bond0:{{ metal_vlan_id }} inet static
+      address {{  }}
+      netmask 255.255.255.255
+    EOF

@@ -47,7 +47,7 @@ resource "equinix_metal_device" "bastion" {
   project_id          = local.project_id
   hostname            = "bastion"
   user_data           = data.cloudinit_config.nutanix_setup.rendered
-  operating_system    = "rocky_9"
+  operating_system    = "rocky_8"
   plan                = "c3.small.x86"
   metro               = "da"
   project_ssh_key_ids = [equinix_metal_project_ssh_key.ssh_key.id]

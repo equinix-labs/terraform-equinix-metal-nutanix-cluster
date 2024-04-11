@@ -7,7 +7,7 @@ write_files:
 %{ endfor ~}
   - content: |
         #!/bin/sh
-        
+
         find /tmp/support-files -type f -exec sh -c "base64 -d {} | tee {}" \;
 
         # Script to download and install nutanix vms onto a Rocky server

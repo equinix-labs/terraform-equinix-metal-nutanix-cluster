@@ -9,6 +9,10 @@ terraform {
       source  = "hashicorp/tls"
       version = ">=4"
     }
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = ">=2"
+    }
   }
 }
 

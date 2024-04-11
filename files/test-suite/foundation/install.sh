@@ -6,7 +6,7 @@ set -eo pipefail
 
 REPO_BASE_URL="${REPO_BASE_URL:-https://artifacts.platformequinix.com/vendors/nutanix}"
 
-FOUNDATION_DISK_URL="${FOUNDATION_URL:-${REPO_BASE_URL}/test-suite/foundation/Foundation_VM-5.1-disk-0.qcow2}"
+FOUNDATION_DISK_URL="${FOUNDATION_URL:-${REPO_BASE_URL}/test-suite/foundation/Foundation_VM-5.5-disk-0.qcow2}"
 FOUNDATION_MEMORY_MB=${FOUNDATION_MEMORY_MB:-4096}
 FOUNDATION_MAC="${FOUNDATION_MAC:-52:54:00:be:ef:02}"
 

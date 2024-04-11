@@ -6,7 +6,7 @@ set -eo pipefail
 
 REPO_BASE_URL="${REPO_BASE_URL:-https://artifacts.platformequinix.com/vendors/nutanix}"
 
-METIS_DISK_URL="${METIS_URL:-${REPO_BASE_URL}/test-suite/metis/nutanix-metis-2.8.6-77193790-disk1.qcow2}"
+METIS_DISK_URL="${METIS_URL:-${REPO_BASE_URL}/test-suite/metis/nutanix-metis-3.1.0-75814fb3-disk1.qcow2}"
 METIS_MEMORY_MB=${METIS_MEMORY_MB:-4096}
 METIS_MAC="${METIS_MAC:-52:54:00:be:ef:01}"
 

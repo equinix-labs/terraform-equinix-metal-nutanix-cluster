@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
 
-EMAPI_BASE_URL="${EMAPI_BASE_URL:-https://api.equinix.com/metal/v1}"
+EMAPI_BASE="${EMAPI_BASE:-https://api.equinix.com}"
+EMAPI_BASE_URL="${EMAPI_BASE_URL:-${EMAPI_BASE}/metal/v1}"
 EMAPI_METADATA_BASE_URL="${EMAPI_METADATA_BASE_URL:-https://metadata.platformequinix.com}"
 
 alias emapi="curl -sf -H 'X-Auth-Token: $EMAPI_AUTH_TOKEN' -H 'Content-Type: application/json'"
@@ -78,6 +79,23 @@ EOF
 	)"
 
 	emapi -X POST "${EMAPI_BASE_URL}/ports/${port_id}/assign" -d "$assign_vlan_payload"
+}
+
+emapi_device_is_hybrid() {
+	local device_id="$1"
+	local bond_port_name="$2"
+	local bond_net_type=$(emapi "${EMAPI_BASE_URL}/devices/${device_id}?include=project_lite" |
+		jq -r ".network_ports | map(select(.name == \"$bond_port_name\")) | last | .network_type")
+
+	test "$bond_net_type" = "hybrid-bonded"
+}
+
+emapi_get_hybrid_vlan() {
+	local device_id="$1"
+	local bond_port_name="$2"
+	local bond_hybrid_net_href=$(emapi "${EMAPI_BASE_URL}/devices/${device_id}?include=project_lite" |
+		jq -r ".network_ports | map(select(.name == \"$bond_port_name\")) | last | .virtual_networks | last | .href")
+	emapi "${EMAPI_BASE}${bond_hybrid_net_href}" | jq -r '.vxlan'
 }
 
 emapi_device_to_hybrid_networking() {

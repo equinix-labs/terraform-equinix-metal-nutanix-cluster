@@ -141,7 +141,8 @@ domain_dhcp_ip() {
 
 	local mac="$(domain_mac_address "$domain")"
 
-	network_mac_ip default "$mac"
+	local ip="$(network_mac_ip default "$mac")"
+	echo "$ip"
 }
 
 setup_hooks_file() {
@@ -269,10 +270,9 @@ EOF
 get_domain_dhcp_ip() {
 	local domain="$1"
 	local lease_ip="$(domain_dhcp_ip "$domain")"
-
 	local tries_remaining=120
 
-	while (($tries_remaining > 0)) && [ -z "$lease_ip" ]; do
+	while [ $tries_remaining > 0 ] && [ -z "$lease_ip" ]; do
 		tries_remaining=$((tries_remaining - 1))
 		log "Waiting for $domain to get an ip... (tries remaining: $tries_remaining)"
 		sleep 30

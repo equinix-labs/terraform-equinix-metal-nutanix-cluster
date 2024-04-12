@@ -1,10 +1,18 @@
 ## template: jinja
 #cloud-config
+write_files:
+- path: /etc/network/interfaces
+  append: true
+  content: |
+
+    auto bond0.${metal_vlan_id}
+    iface bond0.${metal_vlan_id} inet static
+        pre-up sleep 5
+        address ${address}
+        netmask ${netmask}
+        vlan-raw-device bond0
 runcmd:
-  - |
-    cat <<EOF >> /etc/network/interfaces
-    auto bond0:{{ metal_vlan_id }}
-    iface bond0:{{ metal_vlan_id }} inet static
-      address {{  }}
-      netmask 255.255.255.255
-    EOF
+- systemctl restart networking
+- export DEBIAN_FRONTEND=noninteractive
+- apt-get update
+- apt-get install expect sshpass -y

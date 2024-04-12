@@ -16,9 +16,9 @@ L2GATEWAY_HOST_L2_IFACE_FORMAT="${L2GATEWAY_HOST_L2_IFACE_FORMAT:-${L2GATEWAY_HO
 L2GATEWAY_HOST_BRIDGE_IFACE="${L2GATEWAY_HOST_BRIDGE_IFACE:-br0}"
 L2GATEWAY_HOST_BRIDGE_IP="${L2GATEWAY_HOST_BRIDGE_IP:-192.168.0.2/24}"
 L2GATEWAY_MEMORY_MB=${L2GATEWAY_MEMORY_MB:-4096}
-L2GATEWAY_LOCATION_URL="${L2GATEWAY_URL:-https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os}"
+L2GATEWAY_LOCATION_URL="${L2GATEWAY_URL:-https://dl.rockylinux.org/pub/rocky/8/BaseOS/x86_64/os/}"
 L2GATEWAY_KICKSTART_URL="${L2GATEWAY_KICKSTART_URL:-${REPO_BASE_URL}/test-suite/l2gateway/install-vm.ks}"
-L2GATEWAY_VM_EXTRA_ARGS="${L2GATEWAY_VM_ARGS:-inst.repo=${L2GATEWAY_LOCATION_URL} inst.ks=$L2GATEWAY_KICKSTART_URL console=tty0 console=ttyS0,115200n8 rd.timeout=120 rd.retry=30 ip=ens3:dhcp ip=ens4:off}"
+L2GATEWAY_VM_EXTRA_ARGS="${L2GATEWAY_VM_ARGS:-ks=$L2GATEWAY_KICKSTART_URL}"
 L2GATEWAY_VM_DISK_SIZE="${L2GATEWAY_VM_DISK_SIZE:-20}"
 L2GATEWAY_PORT_FORWARDS="$L2GATEWAY_PORT_FORWARDS"
 L2GATEWAY_VLAN_DESCRIPTION="${L2GATEWAY_VLAN_DESCRIPTION:-nutanix undefined vlan description}"
@@ -45,27 +45,18 @@ main() {
 
 	emapi_install_deps
 	local device_id="$(emapi_get_device_id)"
-	local vlan
-	local l2_iface
 
-	if ! emapi_device_is_hybrid "$device_id" "$L2GATEWAY_HOST_BOND_IFACE"; then
-		log "Converting host to hybrid networking"
-		vlan="$(emapi_device_to_hybrid_networking "$device_id" "$L2GATEWAY_VLAN_DESCRIPTION" "$L2GATEWAY_HOST_BOND_IFACE")"
-		if ( ($? != 0)); then
-			return 1
-		fi
-		l2_iface="$(echo "$L2GATEWAY_HOST_L2_IFACE_FORMAT" | VLAN="$vlan" envsubst '$VLAN')"
-
-		log "Creating vlan and bridge interfaces"
-		emapi_create_vlan_iface "$l2_iface"
-		emapi_create_bridge_iface "$L2GATEWAY_HOST_BRIDGE_IFACE" "$L2GATEWAY_HOST_BRIDGE_IP" "$l2_iface"
-
-	else
-		log "Device is already in hybrid mode"
-		vlan="$(emapi_get_hybrid_vlan "$device_id" "$L2GATEWAY_HOST_BOND_IFACE")"
-		log "Found VLAN $vlan"
-		l2_iface="$(echo "$L2GATEWAY_HOST_L2_IFACE_FORMAT" | VLAN="$vlan" envsubst '$VLAN')"
+	log "Converting host ${device_id} to hybrid networking"
+	local vlan="$(emapi_device_to_hybrid_networking "$device_id" "$L2GATEWAY_VLAN_DESCRIPTION" "$L2GATEWAY_HOST_BOND_IFACE")"
+	if ( ($? != 0)); then
+		return 1
 	fi
+
+	local l2_iface="$(echo "$L2GATEWAY_HOST_L2_IFACE_FORMAT" | VLAN="$vlan" envsubst '$VLAN')"
+
+	log "Creating vlan and bridge interfaces"
+	emapi_create_vlan_iface "$l2_iface"
+	emapi_create_bridge_iface "$L2GATEWAY_HOST_BRIDGE_IFACE" "$L2GATEWAY_HOST_BRIDGE_IP" "$l2_iface"
 
 	log "Reloading interface configs"
 

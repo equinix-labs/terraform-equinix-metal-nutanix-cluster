@@ -6,7 +6,7 @@ set -eo pipefail
 
 REPO_BASE_URL="${REPO_BASE_URL:-https://artifacts.platformequinix.com/vendors/nutanix}"
 
-XRAY_DISK_URL="${XRAY_URL:-${REPO_BASE_URL}/test-suite/x-ray/xray-4.3.1.qcow2}"
+XRAY_DISK_URL="${XRAY_URL:-${REPO_BASE_URL}/test-suite/x-ray/xray-3.8.qcow2}"
 XRAY_MEMORY_MB=${XRAY_MEMORY_MB:-4096}
 XRAY_MAC="${XRAY_MAC:-52:54:00:be:ef:03}"
 

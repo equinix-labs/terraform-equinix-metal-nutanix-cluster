@@ -97,7 +97,7 @@ create_vm() {
 		--os-variant=rhel7-unknown \
 		--disk "$disk,format=$disk_format" \
 		--boot hd \
-		--nographics \
+		--graphics vnc \
 		--vcpus=4 \
 		--ram="$memory" \
 		--noautoconsole \
@@ -110,7 +110,7 @@ vm_wait_for_state() {
 	shift
 	local state="$1"
 	local recheck_delay="${2:-1}"
-	local max_attempts="${3:-120}"
+	local max_attempts="${3:-60}"
 
 	local remaining_attempts=$max_attempts
 
@@ -125,7 +125,7 @@ vm_wait_for_state() {
 domain_mac_address() {
 	local domain="$1"
 	shift
-	timeout 30s virsh dumpxml "$domain" | grep -B 3 'virbr0' | grep 'mac address' | awk -F "'" '{print $2}'
+	timeout 2s virsh dumpxml "$domain" | grep 'mac address' | awk -F "'" '{print $2}'
 }
 
 network_mac_ip() {
@@ -133,7 +133,7 @@ network_mac_ip() {
 	shift
 	local mac="$1"
 
-	timeout 30s virsh net-dhcp-leases "$network" | grep "$mac" | awk -F ' ' '{print $5}' | awk -F '/' '{print $1}'
+	timeout 2s virsh net-dhcp-leases "$network" | grep "$mac" | awk -F ' ' '{print $5}' | awk -F '/' '{print $1}'
 }
 
 domain_dhcp_ip() {
@@ -275,7 +275,7 @@ get_domain_dhcp_ip() {
 	while [ $tries_remaining > 0 ] && [ -z "$lease_ip" ]; do
 		tries_remaining=$((tries_remaining - 1))
 		log "Waiting for $domain to get an ip... (tries remaining: $tries_remaining)"
-		sleep 30
+		sleep 2
 		lease_ip="$(domain_dhcp_ip "$domain")"
 	done
 
@@ -386,11 +386,6 @@ init_prereqs() {
 
 	log "Updating ca certificates"
 	yum -y install ca-certificates
-
-	log "Ensuring NetworkManager installed and active"
-	yum -y install NetworkManager
-	systemctl enable NetworkManager
-	systemctl start NetworkManager
 
 	log "Setting up iptables"
 	setup_iptables

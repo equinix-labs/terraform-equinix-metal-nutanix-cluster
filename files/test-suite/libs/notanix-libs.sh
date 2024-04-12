@@ -114,7 +114,7 @@ vm_wait_for_state() {
 
 	local remaining_attempts=$max_attempts
 
-	while (($remaining_attempts > 0)) && ! virsh list --name "--state-${state}" | grep -q "$domain"; do
+	while [ $remaining_attempts -gt 0 ] && ! virsh list --name "--state-${state}" | grep -q "$domain"; do
 		remaining_attempts=$((remaining_attempts - 1))
 		echo "$(date) [${remaining_attempts}/${max_attempts}] | $(virsh list | grep "$domain")"
 		sleep "$recheck_delay"
@@ -272,7 +272,7 @@ get_domain_dhcp_ip() {
 	local lease_ip="$(domain_dhcp_ip "$domain")"
 	local tries_remaining=120
 
-	while [ $tries_remaining > 0 ] && [ -z "$lease_ip" ]; do
+	while [ $tries_remaining -gt 0 ] && [ -z "$lease_ip" ]; do
 		tries_remaining=$((tries_remaining - 1))
 		log "Waiting for $domain to get an ip... (tries remaining: $tries_remaining)"
 		sleep 2

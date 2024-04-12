@@ -16,6 +16,12 @@ write_files:
         # export L2GATEWAY_HOST_BRIDGE_IFACE=virbr0
         export REPO_BASE_URL="file:///tmp/support-files"
 
+        # Need to re-point some URLs at artifacts.platformequinix
+        EXTERNAL_BASE_URL="https://artifacts.platformequinix.com/vendors/nutanix"
+        export FOUNDATION_DISK_URL="$${EXTERNAL_BASE_URL}/test-suite/foundation/Foundation_VM-5.1-disk-0.qcow2"
+        export METIS_DISK_URL="$${EXTERNAL_BASE_URL}/test-suite/metis/nutanix-metis-2.8.6-77193790-disk1.qcow2"
+        export XRAY_DISK_URL="$${EXTERNAL_BASE_URL}/test-suite/x-ray/xray-3.8.qcow2"
+
         curl $${REPO_BASE_URL}/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
     path: /var/lib/cloud/scripts/per-once/nutanix-test.sh
     permissions: "0755"

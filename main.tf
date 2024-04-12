@@ -1,28 +1,7 @@
-/*
-resource equinix_metal_project_ssh_key ssh_key {
-  name       = nutanix-ssh-key
-  project_id = local.project_id
-  public_key = tls_private_key.ssh_key.public_key_openssh
-} */
-
-/* resource equinix_metal_port nutanix_bond0 {
-  for_each = { for idx, val in equinix_metal_device.nutanix : idx => val }
-  port_id  = [for p in each.value.ports : p.id if p.name == bond0][0]
-  layer2   = true
-  bonded   = true
-  vlan_ids = [equinix_metal_vlan.test.id]
-} */
-
-/* resource tls_private_key ssh_key {
-  algorithm = RSA
-  rsa_bits  = 4096
-}
- */
-
-
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
   num_nodes  = 1
+  subnet     = "192.168.100.0/25"
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -43,7 +22,7 @@ module "ssh" {
 resource "equinix_metal_vlan" "nutanix" {
   project_id  = local.project_id
   description = var.metal_vlan_description
-  metro       = "da"
+  metro       = var.metal_metro
 }
 
 resource "equinix_metal_device" "bastion" {
@@ -51,11 +30,12 @@ resource "equinix_metal_device" "bastion" {
   hostname   = "bastion"
   user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
     metal_vlan_id : equinix_metal_vlan.nutanix.vxlan,
-
+    address : cidrhost(local.subnet, 2),
+    netmask : cidrnetmask(local.subnet)
   })
   operating_system = "ubuntu_22_04"
   plan             = "c3.small.x86"
-  metro            = "da"
+  metro            = var.metal_metro
   #project_ssh_key_ids = [equinix_metal_project_ssh_key.ssh_key.id]
 }
 
@@ -66,10 +46,29 @@ resource "equinix_metal_port" "bastion_bond0" {
   vlan_ids = [equinix_metal_vlan.nutanix.id]
 }
 
+resource "equinix_metal_vrf" "nutanix" {
+  description = "VRF with ASN 65000 and a pool of address space that includes 192.168.100.0/25"
+  name        = "nutanix-vrf"
+  metro       = var.metal_metro
+  local_asn   = "65000"
+  ip_ranges   = [local.subnet]
+  project_id  = local.project_id
+}
+
+resource "equinix_metal_reserved_ip_block" "nutanix" {
+  description = "Reserved IP block (${local.subnet}) taken from on of the ranges in the VRF's pool of address space."
+  project_id  = local.project_id
+  metro       = var.metal_metro
+  type        = "vrf"
+  vrf_id      = equinix_metal_vrf.nutanix.id
+  cidr        = split("/", local.subnet)[1]
+  network     = cidrhost(local.subnet, 0)
+}
+
 resource "equinix_metal_gateway" "gateway" {
-  project_id               = local.project_id
-  vlan_id                  = equinix_metal_vlan.nutanix.id
-  private_ipv4_subnet_size = 128
+  project_id        = local.project_id
+  vlan_id           = equinix_metal_vlan.nutanix.id
+  ip_reservation_id = equinix_metal_reserved_ip_block.nutanix.id
 }
 
 resource "equinix_metal_device" "nutanix" {
@@ -78,7 +77,7 @@ resource "equinix_metal_device" "nutanix" {
   hostname         = "nutanix-devrel-test-${count.index}"
   operating_system = "nutanix_lts_6_5"
   plan             = "m3.large.x86"
-  metro            = "da"
+  metro            = var.metal_metro
   ip_address {
     type = "private_ipv4"
   }

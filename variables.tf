@@ -18,6 +18,11 @@ variable "metal_organization_id" {
   type        = string
   description = "The ID of the Metal organization in which to create the project if create_project is true."
 }
+
+variable "metal_metro" {
+  type        = string
+  description = "The metro to create the cluster in."
+}
 variable "create_project" {
   type        = bool
   default     = true

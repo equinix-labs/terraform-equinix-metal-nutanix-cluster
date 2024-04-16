@@ -5,6 +5,11 @@ terraform {
       source  = "equinix/equinix"
       version = ">= 1.30"
     }
+
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3"
+    }
   }
 }
 

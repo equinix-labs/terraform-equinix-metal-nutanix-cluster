@@ -14,9 +14,10 @@ resource "tls_private_key" "ssh_key_pair" {
   rsa_bits  = 4096
 }
 
-resource "equinix_metal_ssh_key" "ssh_pub_key" {
+resource "equinix_metal_project_ssh_key" "ssh_pub_key" {
   name       = local.ssh_key_name
   public_key = chomp(tls_private_key.ssh_key_pair.public_key_openssh)
+  project_id = var.project_id
 }
 
 resource "local_file" "project_private_key_pem" {

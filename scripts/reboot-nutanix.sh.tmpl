@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo https://api.equinix.com/metal/v1/devices/${device_uuid}/actions
+curl -fsSL https://api.equinix.com/metal/v1/devices/${device_uuid}/actions -H "Content-Type: application/json" -H "X-Auth-Token: ${auth_token}" -d  '{"type": "reboot"}'

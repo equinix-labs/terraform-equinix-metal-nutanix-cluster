@@ -16,7 +16,8 @@ data "equinix_metal_project" "nutanix" {
 }
 
 module "ssh" {
-  source = "./modules/ssh/"
+  source     = "./modules/ssh/"
+  project_id = local.project_id
 }
 
 resource "equinix_metal_vlan" "nutanix" {
@@ -24,6 +25,7 @@ resource "equinix_metal_vlan" "nutanix" {
   description = var.metal_vlan_description
   metro       = var.metal_metro
 }
+
 
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
@@ -33,10 +35,10 @@ resource "equinix_metal_device" "bastion" {
     address : cidrhost(local.subnet, 2),
     netmask : cidrnetmask(local.subnet)
   })
-  operating_system = "ubuntu_22_04"
-  plan             = "c3.small.x86"
-  metro            = var.metal_metro
-  #project_ssh_key_ids = [equinix_metal_project_ssh_key.ssh_key.id]
+  operating_system    = "ubuntu_22_04"
+  plan                = "c3.small.x86"
+  metro               = var.metal_metro
+  project_ssh_key_ids = [module.ssh.equinix_metal_ssh_key_id]
 }
 
 resource "equinix_metal_port" "bastion_bond0" {
@@ -83,9 +85,72 @@ resource "equinix_metal_device" "nutanix" {
   }
 }
 
+resource "null_resource" "wait_for_firstboot" {
+  count = local.num_nodes
+
+  depends_on = [
+    equinix_metal_port.bastion_bond0,
+    module.ssh.ssh_private_key,
+    equinix_metal_vrf.nutanix,
+    equinix_metal_vlan.nutanix,
+    equinix_metal_gateway.gateway,
+    equinix_metal_reserved_ip_block.nutanix,
+    equinix_metal_device.nutanix
+  ]
+
+  connection {
+    bastion_host = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user = "root"
+    private_key  = chomp(module.ssh.ssh_private_key_contents)
+    type         = "ssh"
+    user         = "root"
+    host         = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password     = "nutanix/4u"
+    script_path  = "/root/terraform_provisioner_%RAND%.sh"
+  }
+  provisioner "remote-exec" {
+    script = "scripts/firstboot-check.sh"
+  }
+}
+
 resource "equinix_metal_port" "nutanix" {
-  count    = local.num_nodes
-  port_id  = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
-  bonded   = true
-  vlan_ids = [equinix_metal_vlan.nutanix.id]
+  depends_on = [null_resource.wait_for_firstboot]
+  count      = local.num_nodes
+  port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
+  layer2     = true
+  bonded     = true
+  vlan_ids   = [equinix_metal_vlan.nutanix.id]
+
+}
+
+
+resource "null_resource" "reboot_nutanix" {
+  count = local.num_nodes
+
+  depends_on = [
+    equinix_metal_port.bastion_bond0,
+    module.ssh.ssh_private_key,
+    equinix_metal_vrf.nutanix,
+    equinix_metal_vlan.nutanix,
+    equinix_metal_gateway.gateway,
+    equinix_metal_reserved_ip_block.nutanix,
+    equinix_metal_device.nutanix
+  ]
+
+  connection {
+    host        = equinix_metal_device.bastion.access_public_ipv4
+    private_key = chomp(module.ssh.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+  }
+  provisioner "file" {
+    destination = "/root/reboot-nutanix.sh"
+    content = templatefile("${path.module}/scripts/reboot-nutanix.sh.tmpl", {
+      device_uuid = equinix_metal_device.nutanix[count.index].id,
+      auth_token  = var.metal_auth_token
+    })
+  }
+  provisioner "remote-exec" {
+    inline = ["/bin/sh /root/reboot-nutanix.sh"]
+  }
 }

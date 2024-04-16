@@ -11,8 +11,14 @@ write_files:
         address ${address}
         netmask ${netmask}
         vlan-raw-device bond0
+- path: /etc/dnsmasq.d/nutanix.config
+  append: true
+  content: |
+    dhcp-range=192.168.100.3,192.168.100.126,12h
+    bind-interfaces
+    interfaces=bond0.${metal_vlan_id}
 runcmd:
 - systemctl restart networking
 - export DEBIAN_FRONTEND=noninteractive
 - apt-get update
-- apt-get install expect sshpass -y
+- apt-get install expect sshpass dnsmasq -y

@@ -8,3 +8,8 @@ output "ssh_private_key_contents" {
   value       = chomp(tls_private_key.ssh_key_pair.private_key_pem)
   sensitive   = true
 }
+
+output "equinix_metal_ssh_key_id" {
+  description = "public key for bastion host"
+  value       = equinix_metal_project_ssh_key.ssh_pub_key.id
+}

@@ -9,12 +9,6 @@ output "bastion_public_ip" {
   value       = equinix_metal_device.bastion.access_public_ipv4
 }
 
-
-output "nutanix_private_ip" {
-  description = "The private IP assigned to the Nutanix machine"
-  value       = equinix_metal_device.nutanix[*].access_private_ipv4
-}
-
 output "nutanix_sos_hostname" {
   description = "The SOS address to the nutanix machine."
   value       = equinix_metal_device.nutanix[*].sos_hostname

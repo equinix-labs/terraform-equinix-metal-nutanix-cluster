@@ -116,8 +116,30 @@ resource "null_resource" "wait_for_firstboot" {
   }
 }
 
+resource "null_resource" "change_cvm_passwd" {
+  count = local.num_nodes
+
+  depends_on = [
+    null_resource.wait_for_firstboot
+  ]
+
+  connection {
+    bastion_host = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user = "root"
+    private_key  = chomp(module.ssh.ssh_private_key_contents)
+    type         = "ssh"
+    user         = "root"
+    host         = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password     = "nutanix/4u"
+    script_path  = "/root/change-cvm-passwd-%RAND%.sh"
+  }
+  provisioner "remote-exec" {
+    script = "scripts/change-cvm-passwd.sh"
+  }
+}
+
 resource "equinix_metal_port" "nutanix" {
-  depends_on = [null_resource.wait_for_firstboot]
+  depends_on = [null_resource.change_cvm_passwd]
   count      = local.num_nodes
   port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
   layer2     = true
@@ -125,6 +147,7 @@ resource "equinix_metal_port" "nutanix" {
   vlan_ids   = [equinix_metal_vlan.nutanix.id]
 
 }
+
 
 
 resource "null_resource" "reboot_nutanix" {
@@ -152,7 +175,6 @@ resource "null_resource" "reboot_nutanix" {
   }
 }
 
-
 resource "null_resource" "wait_for_dhcp" {
   count = local.num_nodes
 
@@ -172,23 +194,5 @@ resource "null_resource" "wait_for_dhcp" {
   }
 }
 
-/* resource "null_resource" "change_cvm_passwd" {
-  count = local.num_nodes
-
-  depends_on = [
-    null_resource.reboot_nutanix
-  ]
-
-  connection {
-    host        = equinix_metal_device.bastion.access_public_ipv4
-    private_key = chomp(module.ssh.ssh_private_key_contents)
-    type        = "ssh"
-    user        = "root"
-    script_path = "/root/change-cvm-passwd-%RAND%.sh"
-  }
-  provisioner "remote-exec" {
-    script = "scripts/change-cvm-passwd.sh"
-  }
-} */
 
 

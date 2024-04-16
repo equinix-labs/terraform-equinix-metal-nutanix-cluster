@@ -1,8 +1,8 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
   num_nodes  = 1
-  # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/25"
-  subnet = "192.168.100.0/25"
+  # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/22"
+  subnet = "192.168.100.0/22"
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -35,8 +35,13 @@ resource "equinix_metal_device" "bastion" {
     metal_vlan_id : equinix_metal_vlan.nutanix.vxlan,
     address : cidrhost(local.subnet, 2),
     netmask : cidrnetmask(local.subnet),
-    dhcp_start : cidrhost(local.subnet, 3),
-    dhcp_end : cidrhost(local.subnet, -2)
+    host_dhcp_start : cidrhost(local.subnet, 3),
+    host_dhcp_end : cidrhost(local.subnet, 15),
+    vm_dhcp_start : cidrhost(local.subnet, 16),
+    vm_dhcp_end : cidrhost(local.subnet, -2),
+    lease-time : "infinite",
+    nutanix_mac : "50:6b:8d:*:*:*",
+    set : "nutanix"
   })
   operating_system    = "ubuntu_22_04"
   plan                = "c3.small.x86"

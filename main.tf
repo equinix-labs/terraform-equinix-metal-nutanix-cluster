@@ -1,7 +1,8 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
   num_nodes  = 1
-  subnet     = "192.168.100.0/25"
+  # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/25"
+  subnet = "192.168.100.0/25"
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -33,7 +34,9 @@ resource "equinix_metal_device" "bastion" {
   user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
     metal_vlan_id : equinix_metal_vlan.nutanix.vxlan,
     address : cidrhost(local.subnet, 2),
-    netmask : cidrnetmask(local.subnet)
+    netmask : cidrnetmask(local.subnet),
+    dhcp_start : cidrhost(local.subnet, 3),
+    dhcp_end : cidrhost(local.subnet, -2)
   })
   operating_system    = "ubuntu_22_04"
   plan                = "c3.small.x86"
@@ -106,7 +109,7 @@ resource "null_resource" "wait_for_firstboot" {
     user         = "root"
     host         = equinix_metal_device.nutanix[count.index].access_private_ipv4
     password     = "nutanix/4u"
-    script_path  = "/root/terraform_provisioner_%RAND%.sh"
+    script_path  = "/root/firstboot-check-%RAND%.sh"
   }
   provisioner "remote-exec" {
     script = "scripts/firstboot-check.sh"
@@ -128,13 +131,7 @@ resource "null_resource" "reboot_nutanix" {
   count = local.num_nodes
 
   depends_on = [
-    equinix_metal_port.bastion_bond0,
-    module.ssh.ssh_private_key,
-    equinix_metal_vrf.nutanix,
-    equinix_metal_vlan.nutanix,
-    equinix_metal_gateway.gateway,
-    equinix_metal_reserved_ip_block.nutanix,
-    equinix_metal_device.nutanix
+    equinix_metal_port.nutanix
   ]
 
   connection {
@@ -145,7 +142,7 @@ resource "null_resource" "reboot_nutanix" {
   }
   provisioner "file" {
     destination = "/root/reboot-nutanix.sh"
-    content = templatefile("${path.module}/scripts/reboot-nutanix.sh.tmpl", {
+    content = templatefile("${path.module}/templates/reboot-nutanix.sh.tmpl", {
       device_uuid = equinix_metal_device.nutanix[count.index].id,
       auth_token  = var.metal_auth_token
     })
@@ -154,3 +151,44 @@ resource "null_resource" "reboot_nutanix" {
     inline = ["/bin/sh /root/reboot-nutanix.sh"]
   }
 }
+
+
+resource "null_resource" "wait_for_dhcp" {
+  count = local.num_nodes
+
+  depends_on = [
+    null_resource.reboot_nutanix
+  ]
+
+  connection {
+    host        = equinix_metal_device.bastion.access_public_ipv4
+    private_key = chomp(module.ssh.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+    script_path = "/root/dhcp-check-%RAND%.sh"
+  }
+  provisioner "remote-exec" {
+    script = "scripts/dhcp-check.sh"
+  }
+}
+
+/* resource "null_resource" "change_cvm_passwd" {
+  count = local.num_nodes
+
+  depends_on = [
+    null_resource.reboot_nutanix
+  ]
+
+  connection {
+    host        = equinix_metal_device.bastion.access_public_ipv4
+    private_key = chomp(module.ssh.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+    script_path = "/root/change-cvm-passwd-%RAND%.sh"
+  }
+  provisioner "remote-exec" {
+    script = "scripts/change-cvm-passwd.sh"
+  }
+} */
+
+

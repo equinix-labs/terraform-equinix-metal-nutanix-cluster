@@ -8,8 +8,8 @@ send "Nutanix/4u\r"
 interact -o -nobuffer -re $prompt return
 send "Nutanix/4u\r"
 interact -o -nobuffer -re $prompt return
-send "ShinyNewPassword/4u\r"
+send "Nutanix.123\r"
 interact -o -nobuffer -re $prompt return
-send "ShinyNewPassword/4u\r"
+send "Nutanix.123\r"
 interact
-# MAJOR LOAD BEARING TODO: Send more commands like running the change_cvm_vlan command
+send "exit"

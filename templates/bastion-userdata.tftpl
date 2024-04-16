@@ -14,9 +14,9 @@ write_files:
 - path: /etc/dnsmasq.d/nutanix.config
   append: true
   content: |
-    dhcp-range=192.168.100.3,192.168.100.126,12h
+    dhcp-range=${dhcp_start},${dhcp_end},12h
     bind-interfaces
-    interfaces=bond0.${metal_vlan_id}
+    interface=bond0.${metal_vlan_id}
 runcmd:
 - systemctl restart networking
 - export DEBIAN_FRONTEND=noninteractive

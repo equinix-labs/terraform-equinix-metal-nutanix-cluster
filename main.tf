@@ -82,52 +82,20 @@ resource "equinix_metal_gateway" "gateway" {
 }
 
 resource "equinix_metal_device" "nutanix" {
-  count            = local.num_nodes
-  project_id       = local.project_id
-  hostname         = "nutanix-devrel-test-${count.index}"
-  operating_system = "nutanix_lts_6_5"
-  plan             = "m3.large.x86"
-  metro            = var.metal_metro
+  count                   = local.num_nodes
+  project_id              = local.project_id
+  hostname                = "nutanix-devrel-test-${count.index}"
+  operating_system        = "nutanix_lts_6_5"
+  plan                    = "m3.large.x86"
+  metro                   = var.metal_metro
+  hardware_reservation_id = null
   ip_address {
     type = "private_ipv4"
   }
 }
 
-resource "null_resource" "update_max_sessions" {
-  count = local.num_nodes
-
-  depends_on = [
-    equinix_metal_port.bastion_bond0,
-    module.ssh.ssh_private_key,
-    equinix_metal_vrf.nutanix,
-    equinix_metal_vlan.nutanix,
-    equinix_metal_gateway.gateway,
-    equinix_metal_reserved_ip_block.nutanix,
-    equinix_metal_device.nutanix
-  ]
-
-  connection {
-    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
-    bastion_user        = "root"
-    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
-    type                = "ssh"
-    user                = "root"
-    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
-    password            = "nutanix/4u"
-    script_path         = "/root/max-session-%RAND%.sh"
-  }
-  provisioner "remote-exec" {
-    inline = ["sed -i 's/MaxSessions 1$/MaxSessions 10/' /etc/ssh/sshd_config", "systemctl reload sshd"]
-  }
-}
-
-
 resource "null_resource" "wait_for_firstboot" {
   count = local.num_nodes
-
-  depends_on = [
-    null_resource.update_max_sessions
-  ]
 
   connection {
     bastion_host        = equinix_metal_device.bastion.access_public_ipv4

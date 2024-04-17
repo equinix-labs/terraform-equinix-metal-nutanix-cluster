@@ -37,6 +37,10 @@ eval $(metal env -o terraform --export)
 terraform apply
 ```
 
+### Note: SSH failures while running on macOS
+
+The Nutanix devices have `sshd` configured with `MaxSessions 1`.  In most cases this is not a problem, but in our testing on macOS we observed frequent SSH connection errors.  These connection errors can be resolved by turning off the SSH agent in your terminal before running `terraform apply`.  To turn off your SSH agent in a macOS terminal, run `unset SSH_AUTH_SOCK`.
+
 ### Login
 
 ```sh

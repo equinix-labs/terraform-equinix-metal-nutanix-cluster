@@ -107,14 +107,14 @@ resource "null_resource" "wait_for_firstboot" {
   ]
 
   connection {
-    bastion_host = equinix_metal_device.bastion.access_public_ipv4
-    bastion_user = "root"
-    private_key  = chomp(module.ssh.ssh_private_key_contents)
-    type         = "ssh"
-    user         = "root"
-    host         = equinix_metal_device.nutanix[count.index].access_private_ipv4
-    password     = "nutanix/4u"
-    script_path  = "/root/firstboot-check-%RAND%.sh"
+    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user        = "root"
+    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
+    type                = "ssh"
+    user                = "root"
+    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password            = "nutanix/4u"
+    script_path         = "/root/firstboot-check-%RAND%.sh"
   }
   provisioner "remote-exec" {
     script = "scripts/firstboot-check.sh"
@@ -129,14 +129,14 @@ resource "null_resource" "change_cvm_passwd" {
   ]
 
   connection {
-    bastion_host = equinix_metal_device.bastion.access_public_ipv4
-    bastion_user = "root"
-    private_key  = chomp(module.ssh.ssh_private_key_contents)
-    type         = "ssh"
-    user         = "root"
-    host         = equinix_metal_device.nutanix[count.index].access_private_ipv4
-    password     = "nutanix/4u"
-    script_path  = "/root/change-cvm-passwd-%RAND%.sh"
+    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user        = "root"
+    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
+    type                = "ssh"
+    user                = "root"
+    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password            = "nutanix/4u"
+    script_path         = "/root/change-cvm-passwd-%RAND%.sh"
   }
   provisioner "remote-exec" {
     script = "scripts/change-cvm-passwd.sh"

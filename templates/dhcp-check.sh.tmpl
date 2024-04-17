@@ -1,0 +1,6 @@
+#!/bin/sh
+
+until [ "$(grep -c "CVM" /var/lib/misc/dnsmasq.leases)" -ge ${ num_nodes } ]
+do
+        sleep 5
+done

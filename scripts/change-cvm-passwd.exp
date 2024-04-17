@@ -1,4 +1,7 @@
 #!/usr/bin/expect
+
+set password "$env(CVM_PASSWORD)"
+
 eval spawn ssh -oStrictHostKeyChecking=no -oCheckHostIP=no admin@192.168.5.2
 
 # Use the correct prompt
@@ -7,9 +10,8 @@ interact -o -nobuffer -re $prompt return
 send "Nutanix/4u\r"
 interact -o -nobuffer -re $prompt return
 send "Nutanix/4u\r"
-# TODO : optionally make the new password templated
 interact -o -nobuffer -re $prompt return
-send "Nutanix.123\r"
+send "$password\r"
 interact -o -nobuffer -re $prompt return
-send "Nutanix.123\r"
+send "$password\r"
 interact

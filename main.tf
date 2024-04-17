@@ -27,7 +27,6 @@ resource "equinix_metal_vlan" "nutanix" {
   metro       = var.metal_metro
 }
 
-
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
@@ -129,8 +128,13 @@ resource "null_resource" "change_cvm_passwd" {
     password            = "nutanix/4u"
     script_path         = "/root/change-cvm-passwd-%RAND%.sh"
   }
+
   provisioner "remote-exec" {
-    script = "scripts/change-cvm-passwd.exp"
+    inline = [
+      "chmod +x /root/change-cvm-passwd-%RAND%.sh",
+      "export CVM_PASSWORD=${var.nutanix_cvm_password}",
+      "/root/change-cvm-passwd-%RAND%.sh"
+    ]
   }
 }
 
@@ -143,8 +147,6 @@ resource "equinix_metal_port" "nutanix" {
   vlan_ids   = [equinix_metal_vlan.nutanix.id]
 
 }
-
-
 
 resource "null_resource" "reboot_nutanix" {
   count = local.num_nodes
@@ -193,7 +195,6 @@ resource "null_resource" "wait_for_dhcp" {
     inline = ["/bin/sh /root/dhcp-check.sh"]
   }
 }
-
 
 resource "null_resource" "create_cluster" {
   depends_on = [

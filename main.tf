@@ -1,6 +1,6 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  num_nodes  = 1
+  num_nodes  = 3
   # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
 }
@@ -215,10 +215,15 @@ resource "null_resource" "wait_for_dhcp" {
     private_key = chomp(module.ssh.ssh_private_key_contents)
     type        = "ssh"
     user        = "root"
-    script_path = "/root/dhcp-check-%RAND%.sh"
+  }
+  provisioner "file" {
+    destination = "/root/dhcp-check.sh"
+    content = templatefile("${path.module}/templates/dhcp-check.sh.tmpl", {
+      num_nodes = local.num_nodes
+    })
   }
   provisioner "remote-exec" {
-    script = "scripts/dhcp-check.sh"
+    inline = ["/bin/sh /root/dhcp-check.sh"]
   }
 }
 

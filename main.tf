@@ -93,7 +93,7 @@ resource "equinix_metal_device" "nutanix" {
   }
 }
 
-resource "null_resource" "wait_for_firstboot" {
+resource "null_resource" "update_max_sessions" {
   count = local.num_nodes
 
   depends_on = [
@@ -104,6 +104,29 @@ resource "null_resource" "wait_for_firstboot" {
     equinix_metal_gateway.gateway,
     equinix_metal_reserved_ip_block.nutanix,
     equinix_metal_device.nutanix
+  ]
+
+  connection {
+    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user        = "root"
+    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
+    type                = "ssh"
+    user                = "root"
+    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password            = "nutanix/4u"
+    script_path         = "/root/max-session-%RAND%.sh"
+  }
+  provisioner "remote-exec" {
+    inline = ["sed -i 's/MaxSessions 1$/MaxSessions 10/' /etc/ssh/sshd_config", "systemctl reload sshd"]
+  }
+}
+
+
+resource "null_resource" "wait_for_firstboot" {
+  count = local.num_nodes
+
+  depends_on = [
+    null_resource.update_max_sessions
   ]
 
   connection {

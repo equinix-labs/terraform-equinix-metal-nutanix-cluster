@@ -82,13 +82,4 @@ jobs:
           rename-to: shfmt
           chmod: 0755
 
-      - name: Install shellcheck
-        uses: jaxxstorm/action-install-gh-release@v1.11.0
-        with:
-          repo: koalaman/shellcheck
-          platform: linux
-          arch: x86_64
-          tag: ${{ matrix.shellcheck }}
-          extension: "\\.xz"
-
       - uses: pre-commit/action@v3.0.1

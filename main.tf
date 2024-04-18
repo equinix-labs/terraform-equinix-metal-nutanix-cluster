@@ -44,7 +44,7 @@ resource "equinix_metal_device" "bastion" {
     set : "nutanix"
   })
   operating_system    = "ubuntu_22_04"
-  plan                = "c3.small.x86"
+  plan                = var.metal_bastion_plan
   metro               = var.metal_metro
   project_ssh_key_ids = [module.ssh.equinix_metal_ssh_key_id]
 }
@@ -154,10 +154,14 @@ resource "null_resource" "reboot_nutanix" {
   ]
 
   connection {
-    host        = equinix_metal_device.bastion.access_public_ipv4
-    private_key = chomp(module.ssh.ssh_private_key_contents)
-    type        = "ssh"
-    user        = "root"
+    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
+    bastion_user        = "root"
+    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
+    type                = "ssh"
+    user                = "root"
+    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
+    password            = "Nutanix.123"
+    script_path         = "/root/change-cvm-passwd-%RAND%.sh"
   }
   provisioner "file" {
     destination = "/root/reboot-nutanix.sh"
@@ -172,8 +176,6 @@ resource "null_resource" "reboot_nutanix" {
 }
 
 resource "null_resource" "wait_for_dhcp" {
-  count = local.num_nodes
-
   depends_on = [
     null_resource.reboot_nutanix
   ]

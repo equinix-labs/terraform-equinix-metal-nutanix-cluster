@@ -28,3 +28,9 @@ variable "create_project" {
   default     = true
   description = "(Optional) to use an existing project matching `metal_project_name`, set this to false"
 }
+
+variable "metal_bastion_plan" {
+  type        = string
+  default     = "c3.small.x86"
+  description = "Which plan to use for the bastion host."
+}

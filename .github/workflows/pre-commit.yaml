@@ -88,6 +88,6 @@ jobs:
           repo: koalaman/shellcheck
           platform: linux
           arch: x86_64
-          tag: ${{ matrix.tfsec }}
+          tag: ${{ matrix.shellcheck }}
 
       - uses: pre-commit/action@v3.0.1

@@ -130,7 +130,7 @@ resource "null_resource" "change_cvm_passwd" {
     script_path         = "/root/change-cvm-passwd-%RAND%.sh"
   }
   provisioner "remote-exec" {
-    script = "scripts/change-cvm-passwd.sh"
+    script = "scripts/change-cvm-passwd.exp"
   }
 }
 
@@ -211,5 +211,3 @@ resource "null_resource" "create_cluster" {
     script = "scripts/create-cluster.sh"
   }
 }
-
-

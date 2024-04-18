@@ -89,5 +89,6 @@ jobs:
           platform: linux
           arch: x86_64
           tag: ${{ matrix.shellcheck }}
+          extension: "\\.xz"
 
       - uses: pre-commit/action@v3.0.1

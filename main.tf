@@ -195,4 +195,20 @@ resource "null_resource" "wait_for_dhcp" {
 }
 
 
+resource "null_resource" "create_cluster" {
+  depends_on = [
+    null_resource.wait_for_dhcp
+  ]
+
+  connection {
+    host        = equinix_metal_device.bastion.access_public_ipv4
+    private_key = chomp(module.ssh.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+  }
+  provisioner "remote-exec" {
+    script = "scripts/create-cluster.sh"
+  }
+}
+
 

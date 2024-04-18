@@ -17,9 +17,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        tf: [1.7.5]
+        tf: [1.5.7]
         tflint: [v0.50.3]
         tfsec: [v1.28.5]
+        shfmt: [v3.8.0]
+        shellcheck: [v0.10.0]
     permissions:
       pull-requests: write
       id-token: write
@@ -67,6 +69,22 @@ jobs:
           repo: aquasecurity/tfsec
           platform: linux
           arch: amd64
+          tag: ${{ matrix.tfsec }}
+
+      - name: Install shfmt
+        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        with:
+          repo: mvdan/sh
+          platform: linux
+          arch: amd64
+          tag: ${{ matrix.tfsec }}
+
+      - name: Install shellcheck
+        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        with:
+          repo: koalaman/shellcheck
+          platform: linux
+          arch: x86_64
           tag: ${{ matrix.tfsec }}
 
       - uses: pre-commit/action@v3.0.1

@@ -78,6 +78,9 @@ jobs:
           platform: linux
           arch: amd64
           tag: ${{ matrix.shfmt }}
+          extension-matching: disable
+          rename-to: shfmt
+          chmod: 0755
 
       - name: Install shellcheck
         uses: jaxxstorm/action-install-gh-release@v1.11.0
@@ -85,6 +88,6 @@ jobs:
           repo: koalaman/shellcheck
           platform: linux
           arch: x86_64
-          tag: ${{ matrix.shellcheck }}
+          tag: ${{ matrix.tfsec }}
 
       - uses: pre-commit/action@v3.0.1

@@ -205,6 +205,7 @@ resource "null_resource" "create_cluster" {
     private_key = chomp(module.ssh.ssh_private_key_contents)
     type        = "ssh"
     user        = "root"
+    script_path = "/root/create-cluster.sh"
   }
   provisioner "remote-exec" {
     script = "scripts/create-cluster.sh"

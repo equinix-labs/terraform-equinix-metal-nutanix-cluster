@@ -133,7 +133,7 @@ resource "null_resource" "change_cvm_passwd" {
     inline = [
       "chmod +x /root/change-cvm-passwd-%RAND%.sh",
       "export CVM_PASSWORD=${var.nutanix_cvm_password}",
-      "/root/change-cvm-passwd-%RAND%.sh"
+      "/bin/sh /root/change-cvm-passwd-%RAND%.sh"
     ]
   }
 }
@@ -162,6 +162,7 @@ resource "null_resource" "reboot_nutanix" {
     user        = "root"
     script_path = "/root/reboot-nutanix-%RAND%.sh"
   }
+
   provisioner "file" {
     destination = "/root/reboot-nutanix.sh"
     content = templatefile("${path.module}/templates/reboot-nutanix.sh.tmpl", {
@@ -169,6 +170,7 @@ resource "null_resource" "reboot_nutanix" {
       auth_token  = var.metal_auth_token
     })
   }
+
   provisioner "remote-exec" {
     inline = ["/bin/sh /root/reboot-nutanix.sh"]
   }

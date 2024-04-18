@@ -1,6 +1,6 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  num_nodes  = 1
+  num_nodes  = 3
   # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
 }

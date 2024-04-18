@@ -1,11 +1,26 @@
+## template: jinja
 #cloud-config
 write_files:
-  - content: |
-        #!/bin/sh
-        # Script to download and install nutanix vms onto a Rocky server
-        export EMAPI_AUTH_TOKEN=${metal_auth_token}
-        export L2GATEWAY_VLAN_DESCRIPTION=${metal_vlan_description}
+- path: /etc/network/interfaces
+  append: true
+  content: |
 
-        curl https://artifacts.platformequinix.com/vendors/nutanix/test-suite/install.sh | sh 2>&1 | tee /root/install-suite.log
-    path: /var/lib/cloud/scripts/per-once/nutanix-test.sh
-    permissions: "0755"
+    auto bond0.${metal_vlan_id}
+    iface bond0.${metal_vlan_id} inet static
+        pre-up sleep 5
+        address ${address}
+        netmask ${netmask}
+        vlan-raw-device bond0
+- path: /etc/dnsmasq.d/nutanix.config
+  append: true
+  content: |
+    bind-interfaces
+    interface=bond0.${metal_vlan_id}
+    dhcp-range=${host_dhcp_start},${host_dhcp_end},${lease-time}
+    dhcp-mac=set:${set},${nutanix_mac}
+    dhcp-range=tag:${set},${vm_dhcp_start},${vm_dhcp_end},${lease-time}
+runcmd:
+- systemctl restart networking
+- export DEBIAN_FRONTEND=noninteractive
+- apt-get update
+- apt-get install expect sshpass dnsmasq -y

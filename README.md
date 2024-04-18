@@ -37,6 +37,10 @@ eval $(metal env -o terraform --export)
 terraform apply
 ```
 
+### Note: SSH failures while running on macOS
+
+The Nutanix devices have `sshd` configured with `MaxSessions 1`.  In most cases this is not a problem, but in our testing on macOS we observed frequent SSH connection errors.  These connection errors can be resolved by turning off the SSH agent in your terminal before running `terraform apply`.  To turn off your SSH agent in a macOS terminal, run `unset SSH_AUTH_SOCK`.
+
 ### Login
 
 ```sh
@@ -54,13 +58,18 @@ To view examples for how you can leverage this module, please see the [examples]
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >=1.3 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >=4 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | n/a |
+| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | 1.34.0 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.5 |
 
 ## Modules
 
@@ -74,19 +83,27 @@ No modules.
 | [equinix_metal_device.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
 | [equinix_metal_port.bastion_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
 | [equinix_metal_port.nutanix_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
+| [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_project) | resource |
+| [equinix_metal_project_ssh_key.ssh_key](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_project_ssh_key) | resource |
 | [equinix_metal_vlan.test](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vlan) | resource |
+| [tls_private_key.ssh_key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | n/a | `any` | n/a | yes |
-| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | n/a | `string` | `"ntnx-demo"` | no |
+| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Your Equinix Metal API Token | `string` | n/a | yes |
+| <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster.  If create\_project is false the project will be looked up by name. | `string` | n/a | yes |
+| <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false | `bool` | `true` | no |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description added to VLAN created for your Nutanix Cluster | `string` | `"ntnx-demo"` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
 <!-- END_TF_DOCS -->
 ## Contributing
 

@@ -3,11 +3,12 @@ terraform {
   required_providers {
     equinix = {
       source  = "equinix/equinix"
-      version = ">=1.3"
+      version = ">= 1.30"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = ">=4"
+
+    null = {
+      source  = "hashicorp/null"
+      version = ">= 3"
     }
   }
 }

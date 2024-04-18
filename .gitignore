@@ -51,3 +51,4 @@ override.tf.json
 util/keys
 
 *-kubeconfig
+ssh-key-*

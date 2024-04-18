@@ -154,14 +154,11 @@ resource "null_resource" "reboot_nutanix" {
   ]
 
   connection {
-    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
-    bastion_user        = "root"
-    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
-    type                = "ssh"
-    user                = "root"
-    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
-    password            = "Nutanix.123"
-    script_path         = "/root/change-cvm-passwd-%RAND%.sh"
+    host        = equinix_metal_device.bastion.access_public_ipv4
+    private_key = chomp(module.ssh.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+    script_path = "/root/reboot-nutanix-%RAND%.sh"
   }
   provisioner "file" {
     destination = "/root/reboot-nutanix.sh"

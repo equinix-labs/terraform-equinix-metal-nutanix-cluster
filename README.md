@@ -61,19 +61,21 @@ To view examples for how you can leverage this module, please see the [examples]
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
-| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >=1.3 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >=4 |
+| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.30 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >= 3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | 1.34.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.5 |
+| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.30 |
+| <a name="provider_null"></a> [null](#provider\_null) | >= 3 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_ssh"></a> [ssh](#module\_ssh) | ./modules/ssh/ | n/a |
 
 ## Resources
 
@@ -81,28 +83,38 @@ No modules.
 |------|------|
 | [equinix_metal_device.bastion](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
 | [equinix_metal_device.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
+| [equinix_metal_gateway.gateway](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_gateway) | resource |
 | [equinix_metal_port.bastion_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
-| [equinix_metal_port.nutanix_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
+| [equinix_metal_port.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
 | [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_project) | resource |
-| [equinix_metal_project_ssh_key.ssh_key](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_project_ssh_key) | resource |
-| [equinix_metal_vlan.test](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vlan) | resource |
-| [tls_private_key.ssh_key](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
+| [equinix_metal_reserved_ip_block.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_reserved_ip_block) | resource |
+| [equinix_metal_vlan.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vlan) | resource |
+| [equinix_metal_vrf.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vrf) | resource |
+| [null_resource.create_cluster](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.reboot_nutanix](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.wait_for_dhcp](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.wait_for_firstboot](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Your Equinix Metal API Token | `string` | n/a | yes |
+| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
+| <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
+| <a name="input_metal_organization_id"></a> [metal\_organization\_id](#input\_metal\_organization\_id) | The ID of the Metal organization in which to create the project if create\_project is true. | `string` | n/a | yes |
 | <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster.  If create\_project is false the project will be looked up by name. | `string` | n/a | yes |
+| <a name="input_nutanix_cvm_password"></a> [nutanix\_cvm\_password](#input\_nutanix\_cvm\_password) | Custom password for changing the Nutanix Controller VM (CVM) default password | `string` | n/a | yes |
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false | `bool` | `true` | no |
-| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description added to VLAN created for your Nutanix Cluster | `string` | `"ntnx-demo"` | no |
+| <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"c3.small.x86"` | no |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
 <!-- END_TF_DOCS -->
 ## Contributing

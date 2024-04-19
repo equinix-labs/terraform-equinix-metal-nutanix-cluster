@@ -115,40 +115,10 @@ resource "null_resource" "wait_for_firstboot" {
   }
 }
 
-resource "null_resource" "change_cvm_passwd" {
-  count = local.num_nodes
 
-  depends_on = [
-    null_resource.wait_for_firstboot
-  ]
-
-  connection {
-    bastion_host        = equinix_metal_device.bastion.access_public_ipv4
-    bastion_user        = "root"
-    bastion_private_key = chomp(module.ssh.ssh_private_key_contents)
-    type                = "ssh"
-    user                = "root"
-    host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
-    password            = "nutanix/4u"
-    script_path         = "/root/change-cvm-passwd-%RAND%.exp"
-  }
-
-  provisioner "file" {
-    source      = "${path.module}/scripts/change-cvm-passwd.exp"
-    destination = "/root/change-cvm-passwd.exp"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /root/change-cvm-passwd.exp",
-      "export CVM_PASSWORD=${var.nutanix_cvm_password}",
-      "/bin/expect /root/change-cvm-passwd.exp"
-    ]
-  }
-}
 
 resource "equinix_metal_port" "nutanix" {
-  depends_on = [null_resource.change_cvm_passwd]
+  depends_on = [null_resource.wait_for_firstboot]
   count      = local.num_nodes
   port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
   layer2     = true
@@ -222,7 +192,14 @@ resource "null_resource" "create_cluster" {
     script_path = "/root/create-cluster.sh"
   }
 
+  provisioner "file" {
+    source      = "scripts/change-cvm-passwd.exp"
+    destination = "/root/change-cvm-passwd.exp"
+  }
   provisioner "remote-exec" {
-    script = "scripts/create-cluster.sh"
+    inline = [
+      "export CVM_PASSWORD=${var.nutanix_cvm_password}",
+      "/bin/sh -c /root/create-cluster.sh"
+    ]
   }
 }

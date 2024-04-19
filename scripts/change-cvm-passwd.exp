@@ -1,8 +1,8 @@
 #!/usr/bin/expect
-
+set host [lindex $argv 0];
 set password "$env(CVM_PASSWORD)"
 
-eval spawn ssh -oStrictHostKeyChecking=no -oCheckHostIP=no admin@192.168.5.2
+eval spawn ssh -oStrictHostKeyChecking=no -oCheckHostIP=no admin@$host
 
 # Use the correct prompt
 set prompt ": $"

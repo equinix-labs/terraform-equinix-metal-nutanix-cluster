@@ -8,4 +8,4 @@ SSH_HOST=$(echo "$IPADDRS" | cut -f1 -d',')
 expect /root/change-cvm-passwd.exp "$SSH_HOST"
 
 # Create the cluster.
-sshpass -p "Nutanix.123" ssh -t -o StrictHostKeyChecking=no admin@"$SSH_HOST" "echo \"Nutanix.123\" | sudo -S cluster --skip_discovery -s $IPADDRS create"
+sshpass -p "${nutanix_cvm_password}" ssh -t -o StrictHostKeyChecking=no admin@"$SSH_HOST" "echo \"${nutanix_cvm_password}\" | sudo -S cluster --skip_discovery -s $IPADDRS create"

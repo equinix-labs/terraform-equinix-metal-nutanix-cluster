@@ -38,5 +38,5 @@ variable "metal_bastion_plan" {
 variable "nutanix_cvm_password" {
   description = "Custom password for changing the Nutanix Controller VM (CVM) default password"
   type        = string
-  sensitive   = true
+  sensitive   = false
 }

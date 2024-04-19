@@ -31,7 +31,7 @@ resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
 
-  user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
+  user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
     metal_vlan_id   = equinix_metal_vlan.nutanix.vxlan,
     address         = cidrhost(local.subnet, 2),
     netmask         = cidrnetmask(local.subnet),
@@ -179,7 +179,7 @@ resource "null_resource" "wait_for_dhcp" {
   }
 }
 
-resource "null_resource" "create_cluster" {
+resource "null_resource" "finalize_cluster" {
   depends_on = [
     null_resource.wait_for_dhcp
   ]
@@ -189,22 +189,24 @@ resource "null_resource" "create_cluster" {
     private_key = chomp(module.ssh.ssh_private_key_contents)
     type        = "ssh"
     user        = "root"
-    script_path = "/root/create-cluster-%RAND%.sh"
+    script_path = "/root/finalize-cluster-%RAND%.sh"
   }
 
   provisioner "file" {
-    source      = "scripts/change-cvm-passwd.exp"
+    content = templatefile("${path.module}/templates/change-cvm-passwd.exp.tmpl", {
+      nutanix_cvm_password = var.nutanix_cvm_password
+    })
     destination = "/root/change-cvm-passwd.exp"
   }
 
   provisioner "file" {
-    source      = "scripts/create-cluster.sh"
+    content = templatefile("${path.module}/templates/create-cluster.sh.tmpl", {
+      nutanix_cvm_password = var.nutanix_cvm_password
+    })
     destination = "/root/create-cluster.sh"
   }
+
   provisioner "remote-exec" {
-    inline = [
-      "export CVM_PASSWORD=${var.nutanix_cvm_password}",
-      "/bin/sh -c /root/create-cluster.sh"
-    ]
+    inline = ["/bin/sh /root/create-cluster.sh"]
   }
 }

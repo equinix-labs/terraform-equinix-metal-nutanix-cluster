@@ -10,6 +10,10 @@ on:
       - "**/*.tpl"
       - "**/*.tf"
 
+permissions:
+  contents: write # Workflow needs to push new branches to open PRs with docs changes
+  pull-requests: write # Workflow needs to open PRs with docs changes
+
 jobs:
   tf-docs:
     name: TF docs

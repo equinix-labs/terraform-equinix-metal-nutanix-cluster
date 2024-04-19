@@ -130,19 +130,19 @@ resource "null_resource" "change_cvm_passwd" {
     user                = "root"
     host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
     password            = "nutanix/4u"
-    script_path         = "/root/change-cvm-passwd-%RAND%.sh"
+    script_path         = "/root/change-cvm-passwd-%RAND%.exp"
   }
 
   provisioner "file" {
-    source      = "${path.module}/scripts/change-cvm-passwd.sh"
-    destination = "/root/change-cvm-passwd.sh"
+    source      = "${path.module}/scripts/change-cvm-passwd.exp"
+    destination = "/root/change-cvm-passwd.exp"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /root/change-cvm-passwd.sh",
+      "chmod +x /root/change-cvm-passwd.exp",
       "export CVM_PASSWORD=${var.nutanix_cvm_password}",
-      "/bin/expect /root/change-cvm-passwd.sh"
+      "/bin/expect /root/change-cvm-passwd.exp"
     ]
   }
 }

@@ -27,22 +27,23 @@ resource "equinix_metal_vlan" "nutanix" {
   metro       = var.metal_metro
 }
 
-
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
+
   user_data = templatefile("${path.module}/templates/bastion-userdata.tftpl", {
-    metal_vlan_id : equinix_metal_vlan.nutanix.vxlan,
-    address : cidrhost(local.subnet, 2),
-    netmask : cidrnetmask(local.subnet),
-    host_dhcp_start : cidrhost(local.subnet, 3),
-    host_dhcp_end : cidrhost(local.subnet, 15),
-    vm_dhcp_start : cidrhost(local.subnet, 16),
-    vm_dhcp_end : cidrhost(local.subnet, -2),
-    lease-time : "infinite",
-    nutanix_mac : "50:6b:8d:*:*:*",
-    set : "nutanix"
+    metal_vlan_id   = equinix_metal_vlan.nutanix.vxlan,
+    address         = cidrhost(local.subnet, 2),
+    netmask         = cidrnetmask(local.subnet),
+    host_dhcp_start = cidrhost(local.subnet, 3),
+    host_dhcp_end   = cidrhost(local.subnet, 15),
+    vm_dhcp_start   = cidrhost(local.subnet, 16),
+    vm_dhcp_end     = cidrhost(local.subnet, -2),
+    lease_time      = "infinite",
+    nutanix_mac     = "50:6b:8d:*:*:*",
+    set             = "nutanix"
   })
+
   operating_system    = "ubuntu_22_04"
   plan                = var.metal_bastion_plan
   metro               = var.metal_metro
@@ -89,6 +90,7 @@ resource "equinix_metal_device" "nutanix" {
   plan                    = "m3.large.x86"
   metro                   = var.metal_metro
   hardware_reservation_id = null
+
   ip_address {
     type = "private_ipv4"
   }
@@ -107,6 +109,7 @@ resource "null_resource" "wait_for_firstboot" {
     password            = "nutanix/4u"
     script_path         = "/root/firstboot-check-%RAND%.sh"
   }
+
   provisioner "remote-exec" {
     script = "scripts/firstboot-check.sh"
   }
@@ -127,10 +130,20 @@ resource "null_resource" "change_cvm_passwd" {
     user                = "root"
     host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
     password            = "nutanix/4u"
-    script_path         = "/root/change-cvm-passwd-%RAND%.sh"
+    script_path         = "/root/change-cvm-passwd-%RAND%.exp"
   }
+
+  provisioner "file" {
+    source      = "${path.module}/scripts/change-cvm-passwd.exp"
+    destination = "/root/change-cvm-passwd.exp"
+  }
+
   provisioner "remote-exec" {
-    script = "scripts/change-cvm-passwd.exp"
+    inline = [
+      "chmod +x /root/change-cvm-passwd.exp",
+      "export CVM_PASSWORD=${var.nutanix_cvm_password}",
+      "/bin/expect /root/change-cvm-passwd.exp"
+    ]
   }
 }
 
@@ -143,8 +156,6 @@ resource "equinix_metal_port" "nutanix" {
   vlan_ids   = [equinix_metal_vlan.nutanix.id]
 
 }
-
-
 
 resource "null_resource" "reboot_nutanix" {
   count = local.num_nodes
@@ -160,6 +171,7 @@ resource "null_resource" "reboot_nutanix" {
     user        = "root"
     script_path = "/root/reboot-nutanix-%RAND%.sh"
   }
+
   provisioner "file" {
     destination = "/root/reboot-nutanix.sh"
     content = templatefile("${path.module}/templates/reboot-nutanix.sh.tmpl", {
@@ -167,6 +179,7 @@ resource "null_resource" "reboot_nutanix" {
       auth_token  = var.metal_auth_token
     })
   }
+
   provisioner "remote-exec" {
     inline = ["/bin/sh /root/reboot-nutanix.sh"]
   }
@@ -183,17 +196,18 @@ resource "null_resource" "wait_for_dhcp" {
     type        = "ssh"
     user        = "root"
   }
+
   provisioner "file" {
     destination = "/root/dhcp-check.sh"
     content = templatefile("${path.module}/templates/dhcp-check.sh.tmpl", {
       num_nodes = local.num_nodes
     })
   }
+
   provisioner "remote-exec" {
     inline = ["/bin/sh /root/dhcp-check.sh"]
   }
 }
-
 
 resource "null_resource" "create_cluster" {
   depends_on = [
@@ -207,6 +221,7 @@ resource "null_resource" "create_cluster" {
     user        = "root"
     script_path = "/root/create-cluster.sh"
   }
+
   provisioner "remote-exec" {
     script = "scripts/create-cluster.sh"
   }

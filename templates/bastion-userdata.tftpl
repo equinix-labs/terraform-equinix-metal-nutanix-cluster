@@ -16,9 +16,9 @@ write_files:
   content: |
     bind-interfaces
     interface=bond0.${metal_vlan_id}
-    dhcp-range=${host_dhcp_start},${host_dhcp_end},${lease-time}
+    dhcp-range=${host_dhcp_start},${host_dhcp_end},${lease_time}
     dhcp-mac=set:${set},${nutanix_mac}
-    dhcp-range=tag:${set},${vm_dhcp_start},${vm_dhcp_end},${lease-time}
+    dhcp-range=tag:${set},${vm_dhcp_start},${vm_dhcp_end},${lease_time}
 runcmd:
 - systemctl restart networking
 - export DEBIAN_FRONTEND=noninteractive

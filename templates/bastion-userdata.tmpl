@@ -51,11 +51,11 @@ write_files:
     dhcp-range=${host_dhcp_start},${host_dhcp_end},${lease_time}
     dhcp-mac=set:${set},${nutanix_mac}
     dhcp-range=tag:${set},${vm_dhcp_start},${vm_dhcp_end},${lease_time}
-packages: |
-  iptables-persistent
-  expect
-  sshpass
-  dnsmasq
+packages:
+  - iptables-persistent
+  - expect
+  - sshpass
+  - dnsmasq
 runcmd:
 - sysctl -p /etc/sysctl.d/10-ip-forwarding.conf
 - systemctl restart networking

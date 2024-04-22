@@ -1,6 +1,7 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/22"
+  num_nodes  = 3
+  # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
 }
 
@@ -141,16 +142,8 @@ resource "null_resource" "reboot_nutanix" {
     script_path = "/root/reboot-nutanix-%RAND%.sh"
   }
 
-  provisioner "file" {
-    destination = "/root/reboot-nutanix.sh"
-    content = templatefile("${path.module}/templates/reboot-nutanix.sh.tmpl", {
-      device_uuid = equinix_metal_device.nutanix[count.index].id,
-      auth_token  = var.metal_auth_token
-    })
-  }
-
   provisioner "remote-exec" {
-    inline = ["/bin/sh /root/reboot-nutanix.sh"]
+    inline = ["curl -fsSL https://api.equinix.com/metal/v1/devices/${equinix_metal_device.nutanix[count.index].id}/actions -H \"Content-Type: application/json\" -H \"X-Auth-Token: ${var.metal_auth_token}\" -d  '{\"type\": \"reboot\"}'"]
   }
 }
 

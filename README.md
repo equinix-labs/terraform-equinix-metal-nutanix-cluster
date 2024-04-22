@@ -108,6 +108,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false | `bool` | `true` | no |
 | <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"c3.small.x86"` | no |
 | <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
+| <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create | `number` | `3` | no |
 
 ## Outputs
 

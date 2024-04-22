@@ -40,3 +40,9 @@ variable "nutanix_cvm_password" {
   type        = string
   sensitive   = false
 }
+
+variable "nutanix_node_count" {
+  description = "The number of Nutanix nodes to create"
+  type        = number
+  default     = 3
+}

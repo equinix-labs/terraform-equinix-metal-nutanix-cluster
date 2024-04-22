@@ -1,3 +1,7 @@
+# Equinix Metal Project SSH Key
+
+This module creates a project SSH key for an Equinix Metal project.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

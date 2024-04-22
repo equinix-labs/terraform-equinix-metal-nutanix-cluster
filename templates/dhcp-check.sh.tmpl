@@ -1,6 +1,6 @@
 #!/bin/sh
 
-until [ "$(grep -c "CVM" /var/lib/misc/dnsmasq.leases)" -ge ${ num_nodes } ]
+until [ "$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)" -ge ${ 2 * num_nodes } ]
 do
         sleep 5
 done

@@ -1,6 +1,5 @@
 locals {
   project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  num_nodes  = 3
   # Pick an arbitrary private subnet, we recommend a /25 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
 }
@@ -83,7 +82,7 @@ resource "equinix_metal_gateway" "gateway" {
 }
 
 resource "equinix_metal_device" "nutanix" {
-  count                   = local.num_nodes
+  count                   = var.nutanix_node_count
   project_id              = local.project_id
   hostname                = "nutanix-devrel-test-${count.index}"
   operating_system        = "nutanix_lts_6_5"
@@ -97,7 +96,7 @@ resource "equinix_metal_device" "nutanix" {
 }
 
 resource "null_resource" "wait_for_firstboot" {
-  count = local.num_nodes
+  count = var.nutanix_node_count
 
   connection {
     bastion_host        = equinix_metal_device.bastion.access_public_ipv4
@@ -119,7 +118,7 @@ resource "null_resource" "wait_for_firstboot" {
 
 resource "equinix_metal_port" "nutanix" {
   depends_on = [null_resource.wait_for_firstboot]
-  count      = local.num_nodes
+  count      = var.nutanix_node_count
   port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
   layer2     = true
   bonded     = true
@@ -128,7 +127,7 @@ resource "equinix_metal_port" "nutanix" {
 }
 
 resource "null_resource" "reboot_nutanix" {
-  count = local.num_nodes
+  count = var.nutanix_node_count
 
   depends_on = [
     equinix_metal_port.nutanix
@@ -170,7 +169,7 @@ resource "null_resource" "wait_for_dhcp" {
   provisioner "file" {
     destination = "/root/dhcp-check.sh"
     content = templatefile("${path.module}/templates/dhcp-check.sh.tmpl", {
-      num_nodes = local.num_nodes
+      num_nodes = var.nutanix_node_count
     })
   }
 

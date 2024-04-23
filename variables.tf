@@ -14,6 +14,11 @@ variable "metal_project_name" {
   type        = string
   description = "The name of the Metal project in which to deploy the cluster.  If create_project is false the project will be looked up by name."
 }
+
+variable "metal_project_id" {
+  type        = string
+  description = "The ID of the Metal project in which to deploy the cluster. Only used if create_project is false and metal_project_name is empty."
+}
 variable "metal_organization_id" {
   type        = string
   description = "The ID of the Metal organization in which to create the project if create_project is true."
@@ -35,6 +40,15 @@ variable "metal_bastion_plan" {
   description = "Which plan to use for the bastion host."
 }
 
+variable "create_vlan" {
+  type        = bool
+  default     = true
+  description = "Whether to create a new VLAN for this project."
+}
+variable "metal_vlan_id" {
+  type        = number
+  description = "ID of the VLAN you wish to use."
+}
 variable "nutanix_cvm_password" {
   description = "Custom password for changing the Nutanix Controller VM (CVM) default password"
   type        = string

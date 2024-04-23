@@ -1,5 +1,8 @@
 locals {
-  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : (var.metal_project_id != "") ? var.metal_project_id : element(data.equinix_metal_project.nutanix[*].id, 0)
+  vlan_id    = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
+  vxlan      = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
+
   # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
 }
@@ -11,7 +14,7 @@ resource "equinix_metal_project" "nutanix" {
 }
 
 data "equinix_metal_project" "nutanix" {
-  count = var.create_project ? 0 : 1
+  count = (var.create_project || var.metal_project_id != "") ? 0 : 1
   name  = var.metal_project_name
 }
 
@@ -21,17 +24,28 @@ module "ssh" {
 }
 
 resource "equinix_metal_vlan" "nutanix" {
+  count = var.create_vlan ? 1 : 0
+
   project_id  = local.project_id
   description = var.metal_vlan_description
   metro       = var.metal_metro
 }
+
+data "equinix_metal_vlan" "nutanix" {
+  count = var.create_vlan ? 0 : 1
+
+  project_id = local.project_id
+  vxlan      = var.metal_vlan_id
+}
+
+
 
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
 
   user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
-    metal_vlan_id   = equinix_metal_vlan.nutanix.vxlan,
+    metal_vlan_id   = local.vxlan,
     address         = cidrhost(local.subnet, 2),
     netmask         = cidrnetmask(local.subnet),
     host_dhcp_start = cidrhost(local.subnet, 3),
@@ -53,7 +67,7 @@ resource "equinix_metal_port" "bastion_bond0" {
   port_id  = [for p in equinix_metal_device.bastion.ports : p.id if p.name == "bond0"][0]
   layer2   = false
   bonded   = true
-  vlan_ids = [equinix_metal_vlan.nutanix.id]
+  vlan_ids = [local.vlan_id]
 }
 
 resource "equinix_metal_vrf" "nutanix" {
@@ -77,7 +91,7 @@ resource "equinix_metal_reserved_ip_block" "nutanix" {
 
 resource "equinix_metal_gateway" "gateway" {
   project_id        = local.project_id
-  vlan_id           = equinix_metal_vlan.nutanix.id
+  vlan_id           = local.vlan_id
   ip_reservation_id = equinix_metal_reserved_ip_block.nutanix.id
 }
 
@@ -88,7 +102,7 @@ resource "equinix_metal_device" "nutanix" {
   operating_system        = "nutanix_lts_6_5"
   plan                    = "m3.large.x86"
   metro                   = var.metal_metro
-  hardware_reservation_id = null
+  hardware_reservation_id = "next-available"
 
   ip_address {
     type = "private_ipv4"
@@ -122,7 +136,7 @@ resource "equinix_metal_port" "nutanix" {
   port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
   layer2     = true
   bonded     = true
-  vlan_ids   = [equinix_metal_vlan.nutanix.id]
+  vlan_ids   = [local.vlan_id]
 
 }
 

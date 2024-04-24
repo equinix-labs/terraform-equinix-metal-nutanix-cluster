@@ -206,6 +206,8 @@ resource "null_resource" "wait_for_dhcp" {
 }
 
 resource "null_resource" "finalize_cluster" {
+  count = var.skip_cluster_creation ? 0 : 1
+
   depends_on = [
     null_resource.wait_for_dhcp
   ]

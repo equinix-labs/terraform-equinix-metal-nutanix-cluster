@@ -49,8 +49,6 @@ data "equinix_metal_vlan" "nutanix" {
   vxlan      = var.metal_vlan_id
 }
 
-
-
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
@@ -81,9 +79,17 @@ resource "equinix_metal_port" "bastion_bond0" {
   vlan_ids = [local.vlan_id]
 }
 
+# This generates a random suffix to avoid VRF name
+# collisions when multiple clusters are deployed to
+# an existing Metal project
+resource "random_string" "vrf_name_suffix" {
+  length  = 5
+  special = false
+}
+
 resource "equinix_metal_vrf" "nutanix" {
   description = "VRF with ASN 65000 and a pool of address space that includes 192.168.100.0/25"
-  name        = "nutanix-vrf"
+  name        = "nutanix-vrf-${random_string.vrf_name_suffix.result}"
   metro       = var.metal_metro
   local_asn   = "65000"
   ip_ranges   = [local.subnet]

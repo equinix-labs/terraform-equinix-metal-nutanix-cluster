@@ -60,3 +60,9 @@ variable "nutanix_node_count" {
   type        = number
   default     = 3
 }
+
+variable "skip_cluster_creation" {
+  description = "Skip the creation of the Nutanix cluster"
+  type        = bool
+  default     = false
+}

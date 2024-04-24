@@ -240,3 +240,19 @@ resource "null_resource" "finalize_cluster" {
     inline = ["/bin/sh /root/create-cluster.sh"]
   }
 }
+
+resource "null_resource" "get_cvm_ip" {
+  count = var.skip_cluster_creation ? 0 : 1
+
+  depends_on = [
+    null_resource.finalize_cluster
+  ]
+  provisioner "local-exec" {
+    command = "scp -i ${module.ssh.ssh_private_key} -o StrictHostKeyChecking=no root@${equinix_metal_device.bastion.access_public_ipv4}:/root/cvm_ip_address.txt ${path.module}/cvm_ip_address.txt"
+  }
+}
+
+data "local_file" "cvm_ip_address" {
+  depends_on = [null_resource.get_cvm_ip]
+  filename   = "${path.module}/cvm_ip_address.txt"
+}

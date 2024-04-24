@@ -3,8 +3,9 @@
 # Pick a host to use for cluster creation.
 IPADDRS=$(awk '/CVM/ { if (ips != "") ips = ips ","; ips = ips $3 } END { print ips }' /var/lib/misc/dnsmasq.leases)
 SSH_HOST=$(echo "$IPADDRS" | cut -f1 -d',')
+cat "$SSH_HOST" > /root/cvm_ip_address.txt
 
 # Create the cluster.
 # Ping the host first so the ARPing for that host's IP is done and we avoid a failure.
-ping -c 4 $SSH_HOST
+ping -c 4 "$SSH_HOST"
 sshpass -p "nutanix/4u" ssh -t -o StrictHostKeyChecking=no nutanix@"$SSH_HOST" "/usr/local/nutanix/cluster/bin/cluster --cluster_name=equinix-nutanix-demo --dns_servers \"${bastion_address}\" --svm_ip=$IPADDRS create"

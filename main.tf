@@ -198,15 +198,8 @@ resource "null_resource" "finalize_cluster" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/templates/change-cvm-passwd.exp.tmpl", {
-      nutanix_cvm_password = var.nutanix_cvm_password
-    })
-    destination = "/root/change-cvm-passwd.exp"
-  }
-
-  provisioner "file" {
     content = templatefile("${path.module}/templates/create-cluster.sh.tmpl", {
-      nutanix_cvm_password = var.nutanix_cvm_password
+      bastion_address = cidrhost(local.subnet, 2),
     })
     destination = "/root/create-cluster.sh"
   }

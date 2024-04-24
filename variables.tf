@@ -49,11 +49,6 @@ variable "metal_vlan_id" {
   type        = number
   description = "ID of the VLAN you wish to use."
 }
-variable "nutanix_cvm_password" {
-  description = "Custom password for changing the Nutanix Controller VM (CVM) default password"
-  type        = string
-  sensitive   = false
-}
 
 variable "nutanix_node_count" {
   description = "The number of Nutanix nodes to create"

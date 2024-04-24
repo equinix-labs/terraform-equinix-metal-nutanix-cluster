@@ -55,3 +55,9 @@ variable "nutanix_node_count" {
   type        = number
   default     = 3
 }
+
+variable "nutanix_reservation_ids" {
+  description = "Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`.  If you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`."
+  type        = list(string)
+  default     = []
+}

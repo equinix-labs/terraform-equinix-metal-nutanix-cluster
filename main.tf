@@ -5,6 +5,17 @@ locals {
 
   # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
+
+  nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
+}
+
+resource "terraform_data" "input_validation" {
+  lifecycle {
+    precondition {
+      condition     = length(var.nutanix_reservation_ids) == 0 || length(var.nutanix_reservation_ids) == var.nutanix_node_count
+      error_message = "var.nutanix_reservation_ids must be empty to use on-demand instance or must have ${var.nutanix_node_count} items to use hardware reservations"
+    }
+  }
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -96,17 +107,20 @@ resource "equinix_metal_gateway" "gateway" {
 }
 
 resource "equinix_metal_device" "nutanix" {
-  count                   = var.nutanix_node_count
-  project_id              = local.project_id
-  hostname                = "nutanix-devrel-test-${count.index}"
-  operating_system        = "nutanix_lts_6_5"
-  plan                    = "m3.large.x86"
-  metro                   = var.metal_metro
-  hardware_reservation_id = "next-available"
+  count            = var.nutanix_node_count
+  project_id       = local.project_id
+  hostname         = "nutanix-devrel-test-${count.index}"
+  operating_system = "nutanix_lts_6_5"
+  plan             = "m3.large.x86"
+  metro            = var.metal_metro
+
+  hardware_reservation_id          = lookup(local.nutanix_reservation_ids, count.index, null)
+  wait_for_reservation_deprovision = length(var.nutanix_reservation_ids) > 0
 
   ip_address {
     type = "private_ipv4"
   }
+
 }
 
 resource "null_resource" "wait_for_firstboot" {

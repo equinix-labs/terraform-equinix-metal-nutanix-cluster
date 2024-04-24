@@ -63,6 +63,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.30 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3 |
 
 ## Providers
 
@@ -70,6 +71,8 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|---------|
 | <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.30 |
 | <a name="provider_null"></a> [null](#provider\_null) | >= 3 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3 |
+| <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
 
@@ -94,6 +97,8 @@ To view examples for how you can leverage this module, please see the [examples]
 | [null_resource.reboot_nutanix](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.wait_for_dhcp](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.wait_for_firstboot](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [random_string.vrf_name_suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [terraform_data.input_validation](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
 | [equinix_metal_vlan.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_vlan) | data source |
 
@@ -112,6 +117,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"c3.small.x86"` | no |
 | <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
 | <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create | `number` | `3` | no |
+| <a name="input_nutanix_reservation_ids"></a> [nutanix\_reservation\_ids](#input\_nutanix\_reservation\_ids) | Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`.  If you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`. | `list(string)` | `[]` | no |
 
 ## Outputs
 

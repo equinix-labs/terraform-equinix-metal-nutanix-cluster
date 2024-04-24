@@ -5,6 +5,17 @@ locals {
 
   # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
   subnet = "192.168.100.0/22"
+
+  nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
+}
+
+resource "terraform_data" "input_validation" {
+  lifecycle {
+    precondition {
+      condition     = length(var.nutanix_reservation_ids) == 0 || length(var.nutanix_reservation_ids) == var.nutanix_node_count
+      error_message = "var.nutanix_reservation_ids must be empty to use on-demand instance or must have ${var.nutanix_node_count} items to use hardware reservations"
+    }
+  }
 }
 
 resource "equinix_metal_project" "nutanix" {
@@ -38,8 +49,6 @@ data "equinix_metal_vlan" "nutanix" {
   vxlan      = var.metal_vlan_id
 }
 
-
-
 resource "equinix_metal_device" "bastion" {
   project_id = local.project_id
   hostname   = "bastion"
@@ -70,9 +79,17 @@ resource "equinix_metal_port" "bastion_bond0" {
   vlan_ids = [local.vlan_id]
 }
 
+# This generates a random suffix to avoid VRF name
+# collisions when multiple clusters are deployed to
+# an existing Metal project
+resource "random_string" "vrf_name_suffix" {
+  length  = 5
+  special = false
+}
+
 resource "equinix_metal_vrf" "nutanix" {
   description = "VRF with ASN 65000 and a pool of address space that includes 192.168.100.0/25"
-  name        = "nutanix-vrf"
+  name        = "nutanix-vrf-${random_string.vrf_name_suffix.result}"
   metro       = var.metal_metro
   local_asn   = "65000"
   ip_ranges   = [local.subnet]
@@ -96,21 +113,25 @@ resource "equinix_metal_gateway" "gateway" {
 }
 
 resource "equinix_metal_device" "nutanix" {
-  count                   = var.nutanix_node_count
-  project_id              = local.project_id
-  hostname                = "nutanix-devrel-test-${count.index}"
-  operating_system        = "nutanix_lts_6_5"
-  plan                    = "m3.large.x86"
-  metro                   = var.metal_metro
-  hardware_reservation_id = "next-available"
+  count            = var.nutanix_node_count
+  project_id       = local.project_id
+  hostname         = "nutanix-devrel-test-${count.index}"
+  operating_system = "nutanix_lts_6_5"
+  plan             = "m3.large.x86"
+  metro            = var.metal_metro
+
+  hardware_reservation_id          = lookup(local.nutanix_reservation_ids, count.index, null)
+  wait_for_reservation_deprovision = length(var.nutanix_reservation_ids) > 0
 
   ip_address {
     type = "private_ipv4"
   }
+
 }
 
 resource "null_resource" "wait_for_firstboot" {
-  count = var.nutanix_node_count
+  depends_on = [equinix_metal_port.bastion_bond0]
+  count      = var.nutanix_node_count
 
   connection {
     bastion_host        = equinix_metal_device.bastion.access_public_ipv4
@@ -200,15 +221,8 @@ resource "null_resource" "finalize_cluster" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/templates/change-cvm-passwd.exp.tmpl", {
-      nutanix_cvm_password = var.nutanix_cvm_password
-    })
-    destination = "/root/change-cvm-passwd.exp"
-  }
-
-  provisioner "file" {
     content = templatefile("${path.module}/templates/create-cluster.sh.tmpl", {
-      nutanix_cvm_password = var.nutanix_cvm_password
+      bastion_address = cidrhost(local.subnet, 2),
     })
     destination = "/root/create-cluster.sh"
   }

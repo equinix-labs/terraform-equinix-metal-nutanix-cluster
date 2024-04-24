@@ -12,13 +12,16 @@ variable "metal_vlan_description" {
 
 variable "metal_project_name" {
   type        = string
-  description = "The name of the Metal project in which to deploy the cluster.  If create_project is false the project will be looked up by name."
+  default     = ""
+  description = "The name of the Metal project in which to deploy the cluster.  If create_project is false and you do not specify a project ID, the project will be looked up by name."
 }
 
 variable "metal_project_id" {
   type        = string
-  description = "The ID of the Metal project in which to deploy the cluster. Only used if create_project is false and metal_project_name is empty."
+  default     = ""
+  description = "The ID of the Metal project in which to deploy to cluster.  If create_project is false and you specify a project ID, the metal_project_name variable is not used."
 }
+
 variable "metal_organization_id" {
   type        = string
   description = "The ID of the Metal organization in which to create the project if create_project is true."
@@ -47,12 +50,8 @@ variable "create_vlan" {
 }
 variable "metal_vlan_id" {
   type        = number
+  default     = null
   description = "ID of the VLAN you wish to use."
-}
-variable "nutanix_cvm_password" {
-  description = "Custom password for changing the Nutanix Controller VM (CVM) default password"
-  type        = string
-  sensitive   = false
 }
 
 variable "nutanix_node_count" {
@@ -65,4 +64,9 @@ variable "skip_cluster_creation" {
   description = "Skip the creation of the Nutanix cluster"
   type        = bool
   default     = false
+
+variable "nutanix_reservation_ids" {
+  description = "Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`.  If you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`."
+  type        = list(string)
+  default     = []
 }

@@ -25,7 +25,7 @@ resource "equinix_metal_project" "nutanix" {
 }
 
 data "equinix_metal_project" "nutanix" {
-  count = (var.create_project || var.metal_project_id != "") ? 0 : 1
+  count = !var.create_project && (var.metal_project_id == "" || var.metal_project_id == null) ? 1 : 0
   name  = var.metal_project_name
 }
 

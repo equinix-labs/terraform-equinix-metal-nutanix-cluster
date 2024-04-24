@@ -118,6 +118,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_metal_vlan_id"></a> [metal\_vlan\_id](#input\_metal\_vlan\_id) | ID of the VLAN you wish to use. | `number` | `null` | no |
 | <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create | `number` | `3` | no |
 | <a name="input_nutanix_reservation_ids"></a> [nutanix\_reservation\_ids](#input\_nutanix\_reservation\_ids) | Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`.  If you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`. | `list(string)` | `[]` | no |
+| <a name="input_skip_cluster_creation"></a> [skip\_cluster\_creation](#input\_skip\_cluster\_creation) | Skip the creation of the Nutanix cluster | `bool` | `false` | no |
 
 ## Outputs
 

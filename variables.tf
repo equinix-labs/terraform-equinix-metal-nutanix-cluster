@@ -12,13 +12,16 @@ variable "metal_vlan_description" {
 
 variable "metal_project_name" {
   type        = string
-  description = "The name of the Metal project in which to deploy the cluster.  If create_project is false the project will be looked up by name."
+  default     = ""
+  description = "The name of the Metal project in which to deploy the cluster.  If create_project is false and you do not specify a project ID, the project will be looked up by name."
 }
 
 variable "metal_project_id" {
   type        = string
-  description = "The ID of the Metal project in which to deploy the cluster. Only used if create_project is false and metal_project_name is empty."
+  default     = ""
+  description = "The ID of the Metal project in which to deploy to cluster.  If create_project is false and you specify a project ID, the metal_project_name variable is not used."
 }
+
 variable "metal_organization_id" {
   type        = string
   description = "The ID of the Metal organization in which to create the project if create_project is true."
@@ -47,6 +50,7 @@ variable "create_vlan" {
 }
 variable "metal_vlan_id" {
   type        = number
+  default     = null
   description = "ID of the VLAN you wish to use."
 }
 

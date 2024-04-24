@@ -110,7 +110,8 @@ resource "equinix_metal_device" "nutanix" {
 }
 
 resource "null_resource" "wait_for_firstboot" {
-  count = var.nutanix_node_count
+  depends_on = [equinix_metal_port.bastion_bond0]
+  count      = var.nutanix_node_count
 
   connection {
     bastion_host        = equinix_metal_device.bastion.access_public_ipv4

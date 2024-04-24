@@ -107,7 +107,6 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_metal_project_id"></a> [metal\_project\_id](#input\_metal\_project\_id) | The ID of the Metal project in which to deploy the cluster. Only used if create\_project is false and metal\_project\_name is empty. | `string` | n/a | yes |
 | <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster.  If create\_project is false the project will be looked up by name. | `string` | n/a | yes |
 | <a name="input_metal_vlan_id"></a> [metal\_vlan\_id](#input\_metal\_vlan\_id) | ID of the VLAN you wish to use. | `number` | n/a | yes |
-| <a name="input_nutanix_cvm_password"></a> [nutanix\_cvm\_password](#input\_nutanix\_cvm\_password) | Custom password for changing the Nutanix Controller VM (CVM) default password | `string` | n/a | yes |
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false | `bool` | `true` | no |
 | <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
 | <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"c3.small.x86"` | no |

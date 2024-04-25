@@ -18,3 +18,8 @@ output "ssh_forward_command" {
   description = "SSH port forward command to use to connect to the Prism GUI"
   value       = "ssh -L 9440:${data.local_file.cvm_ip_address.content}:9440 -i ${module.ssh.ssh_private_key} root@${equinix_metal_device.bastion.access_public_ipv4}"
 }
+
+output "cvim_ip_address" {
+  description = "The IP address of the CVM"
+  value       = data.local_file.cvm_ip_address.content
+}

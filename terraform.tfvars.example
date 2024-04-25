@@ -1,0 +1,13 @@
+# metal_auth_token="" # Equinix Metal API token
+# metal_vlan_description = "ntnx-demo" # Description to add to created VLAN.
+# metal_project_name="" # The name of the Metal project in which to deploy the cluster
+# metal_project_id="" # The ID of the Metal project in which to deploy to cluster if `create_project` is false.
+# metal_organization_id="" # The ID of the Metal organization in which to create the project if `create_project` is true.
+# metal_metro="" # The metro to create the cluster in
+# create_project=true # (Optional) to use an existing project matching `metal_project_name`, set this to false.
+# metal_bastion_plan="c3.small.x86" # Which plan to use for the bastion host.
+# create_vlan=true # Whether to create a new VLAN for this project.
+# metal_vlan_id=null # ID of the VLAN you wish to use. e.g. 1234
+# nutanix_node_count=3 # The number of Nutanix nodes to create.
+# skip_cluster_creation=false # Skip the creation of the Nutanix cluster.
+# nutanix_reservation_ids=[] # Hardware reservation IDs to use for the Nutanix nodes

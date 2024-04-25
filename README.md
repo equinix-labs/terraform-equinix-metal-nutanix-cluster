@@ -1,49 +1,93 @@
 # Nutanix Cluster on Equinix Metal
 
-This Terraform module will deploy a demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access is managed by an Ubuntu 22.04 bastion/gateway node.
+This Terraform module will deploy a proof-of-concept demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access is managed by an Ubuntu 22.04 bastion/gateway node.
 
 ## Acronyms and Terms
 
-- AOS: Acropolis Operating System
-- NOS: Nutanix Operating System (Used interchangably with AOS)
-- AHV: AOS Hypervisor
-- Phoenix: The AOS/NOS Installer
-- CVM: Cluster Virtual Machine
-- Prism: AOS Cluster Web UI
+* AOS: Acropolis Operating System
+* NOS: Nutanix Operating System (Used interchangeably with AOS)
+* AHV: AOS Hypervisor
+* Phoenix: The AOS/NOS Installer
+* CVM: Cluster Virtual Machine
+* Prism: AOS Cluster Web UI
 
-## Nutanix Installation in a nutshell
+## Nutanix Installation in a Nutshell
 
-For those who are unfamiliar with Nutanix. Nutanix is a virtual machine management suite, similar to VMWare ESXi.
+For those who are unfamiliar with Nutanix. Nutanix is HCI (Hyperconverged Infrastructure) software. See [https://www.nutanix.com/products/nutanix-cloud-infrastructure](https://www.nutanix.com/products/nutanix-cloud-infrastructure) for more details from Nutanix.
 
-Nutanix is typically deployed in a private network without public IPs assigned directly to the host.
-This experience is different than what many cloud users would expect in an OS deployment.
+Nutanix AOS is typically deployed in a private network without public IPs assigned directly to the host.
+This experience differs from what many cloud users would expect in an OS deployment.
 
-Due to this, we'll be deploying Nutanix with only private management IPs and later converting the nodes to full Layer-2.
+This POC Terraform module is inspired by the [Deploying a multi-node Nutanix cluster on Metal](https://deploy.equinix.com/developers/guides/deploying-a-multi-node-nutanix-cluster-on-equinix-metal/) guide which goes into detail about how to deploy Nutanix and the required networking configuration on Equinix Metal. Follow that guide for step-by-step instructions that you can customize along the way.
 
-To allow access to the internet and make it easier to access these hosts, we'll be deploying a server in Hybrid networking mode to act as a dns host, internet gateway, dhcp server, and bastion host.
+By deploying this POC Terraform module, you will get an automated and opinionated minimal Nutanix Cluster that will help provide a quick introduction to the platform's capabilities.
 
-To begin, we'll start by provisioning a m3.small which has two NICs. Allowing us to have one in layer-3 with a public IP,
-and one in layer-2 to access the internal layer-2 network.
+This POC is not intended to be used as a demonstration of best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery.
 
-## Manual Installation
+To accommodate deployment requirements, this module will create:
 
-See [INSTALL_GUIDE.md](INSTALL_GUIDE.md) to install by hand. Otherwise, skip to the following section to let Terraform do all the work.
+* 1x [c3.small.x86](https://deploy.equinix.com/product/servers/c3-small/) node running [Ubuntu 22.04](https://deploy.equinix.com/developers/docs/metal/operating-systems/supported/#ubuntu) in a [hybrid-bonded networking mode](https://deploy.equinix.com/developers/docs/metal/layer2-networking/hybrid-bonded-mode/)
+
+  This "bastion" node will act as a router and jump box. DHCP, DNS, and NAT (internet access) functionality will be provided by [`dnsmasq`](https://dnsmasq.org/doc.html).
+* 3x [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) nodes running [Nutanix LTS 6.5](https://deploy.equinix.com/developers/docs/metal/operating-systems/licensed/#nutanix-cloud-platform-on-equinix-metal) in [layer2-bonded networking mode](https://deploy.equinix.com/developers/docs/metal/layer2-networking/layer2-bonded-mode/)
+
+  [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) [hardware reservations](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) are preferred and required for [capacity](https://deploy.equinix.com/developers/docs/metal/locations/capacity/) and to ensure hardware compatibility with Nutanix. On-demand instances will be deployed by default, see ["On-Demand Instances"](#on-demand-instances) notes below for more details.
+* 1x [VLAN](https://deploy.equinix.com/developers/docs/metal/layer2-networking/vlans/) and [Metal Gateway](https://deploy.equinix.com/developers/docs/metal/layer2-networking/metal-gateway/) with [VRF](https://deploy.equinix.com/developers/docs/metal/layer2-networking/vrf/)
+
+  The VRF will route a `/22` IP range within the VLAN, providing ample IP space for POC purposes.
+
+  The bastion node will attach to this VLAN, and the Nutanix nodes will passively access this as their [Native VLAN](https://deploy.equinix.com/developers/docs/metal/layer2-networking/native-vlan/) with DHCP addresses from the VRF space assigned by the bastion node.
+* 1x [SSH Key](https://deploy.equinix.com/developers/docs/metal/identity-access-management/ssh-keys/) configured to access the bastion node
+
+  Terraform will create an SSH key scoped to this deployment. The key will be stored in the Terraform workspace.
+* 1x [Metal Project](https://deploy.equinix.com/developers/docs/metal/projects/creating-a-project/)
+
+  Optionally deploy a new project to test the POC in isolation or deploy it within an existing project.
 
 ## Terraform installation
 
+You'll need [Terraform installed](https://developer.hashicorp.com/terraform/install) and an [Equinix Metal account](https://deploy.equinix.com/developers/docs/metal/identity-access-management/users/) with an [API key](https://deploy.equinix.com/developers/docs/metal/identity-access-management/api-keys/).
+
+If you have the [Metal CLI](https://deploy.equinix.com/developers/docs/metal/libraries/cli/) configured, the following will setup your authentication and project settings in an OSX or Linux shell environment.
+
+```sh
+eval $(metal env -o terraform --export) # 
+export TF_VAR_metal_metro=sl # Deploy to Seoul
+```
+
+Otherwise, copy `terraform.tfvars.example` to `terraform.tfvars` and edit the input values before continuing.
+
+Run the following from your console terminal:
+
 ```sh
 terraform init
-eval $(metal env -o terraform --export)
 terraform apply
 ```
 
-### Note: SSH failures while running on macOS
+When complete, after roughly 45m, you'll see something like the following:
 
-The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases this is not a problem, but in our testing on macOS we observed frequent SSH connection errors. These connection errors can be resolved by turning off the SSH agent in your terminal before running `terraform apply`. To turn off your SSH agent in a macOS terminal, run `unset SSH_AUTH_SOCK`.
+```console
+Outputs:
 
-### How to login to Prism GUI
+bastion_public_ip = "ipv4-address"
+nutanix_sos_hostname = [
+  "uuid1@sos.sl1.platformequinix.com",
+  "uuid2@sos.sl1.platformequinix.com",
+  "uuid3@sos.sl1.platformequinix.com",
+]
+ssh_private_key = "/terraform/workspace/ssh-key-abc123"
+ssh_forward_command = "ssh -L 9440:1.2.3.4:9440 -i /terraform/workspace/ssh-key-abc123 root@ipv4-address"
+```
 
-- First create an SSH port forward session with the bastion host:
+See ["Known Problems"](#known-problems) if your `terraform apply` does not complete successfully.
+
+## Next Steps
+
+You have several ways to access the bastion node, Nutanix nodes, and the cluster.
+
+### Login to Prism GUI
+
+* First create an SSH port forward session with the bastion host:
 
   **Mac or Linux**
 
@@ -51,28 +95,54 @@ The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases t
   $(terraform output -raw ssh_forward_command)
   ```
 
-  or
-
-  ```sh
-  ssh -i nutanix_rsa root@$(terraform output -raw bastion_public_ip)
-  ```
-
   **Windows**
 
   ```sh
-  TODO
+  invoke-expression $(terraform output -raw ssh_forward_command)
   ```
 
-- Then open a browser and go here.and navigate to <https://localhost:9440>
+* Then open a browser and navigate to <https://localhost:9440>
+* See [Logging Into Prism Central](https://portal.nutanix.com/page/documents/details?targetId=Prism-Central-Guide-vpc_2023_4:mul-login-pc-t.html) for more details (including default credentials)
 
-### How to open an SSH session with the bastion host for troubleshooting
+### Access the Bastion host over SSH
+
+For access to the bastion node, for troubleshooting the installation or to for network access to the Nutanix nodes, you can SSH into the bastion host using:
 
 ```sh
-touch nutanix_rsa
-chmod 0600 nutanix_rsa
-terraform output -raw ssh_private_key > nutanix_rsa
-ssh -i nutanix_rsa root@$(terraform output -raw bastion_public_ip)
+ssh -i $(terraform output -raw ssh_private_key) root@$(terraform output -raw bastion_public_ip)
 ```
+
+### Access the Nutanix nodes over SSH
+
+You can open a direct SSH session to the Nutanix nodes using the bastion host as a jumpbox.  Debug details from the Cluster install can be found within `/home/nutanix/data/logs`.
+
+```sh
+ssh -i $(terraform output -raw ssh_private_key) -j root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address)
+```
+
+### Access the Nutanix nodes out-of-band
+
+You can access use the [SOS (Serial-Over-SSH)](https://deploy.equinix.com/developers/docs/metal/resilience-recovery/serial-over-ssh/) interface for [out-of-bands access using the default credentials for Nutanix nodes](https://deploy.equinix.com/developers/docs/metal/operating-systems/licensed/#accessing-your-nutanix-server).
+
+```sh
+ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_sos_hostname[0]) # access the first node
+ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_sos_hostname[1]) # access the second node
+ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_sos_hostname[2]) # access the third node
+```
+
+## Known Problems
+
+### On-Demand Instances
+
+**TODO**
+
+### SSH failures while running on macOS
+
+The Nutanix devices have `sshd` configured with `MaxSessions 1`.  In most cases this is not a problem, but in our testing on macOS we observed frequent SSH connection errors.  These connection errors can be resolved by turning off the SSH agent in your terminal before running `terraform apply`.  To turn off your SSH agent in a macOS terminal, run `unset SSH_AUTH_SOCK`.
+
+### Other Timeouts and Connection issues
+
+This POC project has not ironed out all potential networking and provisioning timing hiccups that can occur. In many situations, running `terraform apply` again will progress the deployment to the next step. If you do not see progress after 3 attempts, open an issue on GitHub: <https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/issues/new>.
 
 ## Examples
 

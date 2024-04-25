@@ -1,5 +1,5 @@
 locals {
-  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : (var.metal_project_id != "") ? var.metal_project_id : element(data.equinix_metal_project.nutanix[*].id, 0)
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
   vlan_id    = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
   vxlan      = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
 
@@ -13,7 +13,15 @@ resource "terraform_data" "input_validation" {
   lifecycle {
     precondition {
       condition     = length(var.nutanix_reservation_ids) == 0 || length(var.nutanix_reservation_ids) == var.nutanix_node_count
-      error_message = "var.nutanix_reservation_ids must be empty to use on-demand instance or must have ${var.nutanix_node_count} items to use hardware reservations"
+      error_message = "`nutanix_reservation_ids` must be empty to use on-demand instance or must have ${var.nutanix_node_count} items to use hardware reservations"
+    }
+    precondition {
+      condition     = var.create_project == false || var.metal_project_name != ""
+      error_message = "If `create_project` is true, `metal_project_name` must not be empty"
+    }
+    precondition {
+      condition     = (var.metal_project_name != "" && var.metal_project_id == "") || (var.metal_project_name == "" && var.metal_project_id != "")
+      error_message = "One (and only one) of `metal_project_name` or `metal_project_id` is required"
     }
   }
 }
@@ -25,8 +33,9 @@ resource "equinix_metal_project" "nutanix" {
 }
 
 data "equinix_metal_project" "nutanix" {
-  count = !var.create_project && (var.metal_project_id == "" || var.metal_project_id == null) ? 1 : 0
-  name  = var.metal_project_name
+  count      = var.create_project ? 0 : 1
+  name       = var.metal_project_name != "" ? var.metal_project_name : null
+  project_id = var.metal_project_id != "" ? var.metal_project_id : null
 }
 
 module "ssh" {

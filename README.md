@@ -62,6 +62,7 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.30 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | >= 2.5 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 3 |
 | <a name="requirement_random"></a> [random](#requirement\_random) | >= 3 |
 
@@ -70,6 +71,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | Name | Version |
 |------|---------|
 | <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.30 |
+| <a name="provider_local"></a> [local](#provider\_local) | >= 2.5 |
 | <a name="provider_null"></a> [null](#provider\_null) | >= 3 |
 | <a name="provider_random"></a> [random](#provider\_random) | >= 3 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
@@ -94,6 +96,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | [equinix_metal_vlan.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vlan) | resource |
 | [equinix_metal_vrf.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vrf) | resource |
 | [null_resource.finalize_cluster](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.get_cvm_ip](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.reboot_nutanix](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.wait_for_dhcp](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [null_resource.wait_for_firstboot](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
@@ -101,6 +104,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | [terraform_data.input_validation](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) | resource |
 | [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
 | [equinix_metal_vlan.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_vlan) | data source |
+| [local_file.cvm_ip_address](https://registry.terraform.io/providers/hashicorp/local/latest/docs/data-sources/file) | data source |
 
 ## Inputs
 
@@ -126,6 +130,7 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|-------------|
 | <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
 | <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |
+| <a name="output_ssh_forward_command"></a> [ssh\_forward\_command](#output\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
 <!-- END_TF_DOCS -->
 ## Contributing

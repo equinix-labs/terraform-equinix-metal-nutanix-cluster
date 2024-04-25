@@ -1,6 +1,20 @@
 #!/bin/sh
 
-until [ "$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)" -ge ${ 2 * num_nodes } ]
+until [ -f /var/lib/misc/dnsmasq.leases ]
 do
+        echo "Waiting for /var/lib/misc/dnsmasq.leases to exist..."
         sleep 5
 done
+
+echo "Found /var/lib/misc/dnsmasq.leases.  Examining leases."
+
+found_leases=$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)
+
+until [ "$${found_leases}" -ge ${ 2 * num_nodes } ]
+do
+        echo "Waiting for at least ${ 2 * num_nodes } leases in /var/lib/misc/dnsmasq.leases, found $${found_leases}..."
+        found_leases=$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)
+        sleep 5
+done
+
+echo "Found the expected ${ 2 * num_nodes } leases in /var/lib/misc/dnsmasq.leases."

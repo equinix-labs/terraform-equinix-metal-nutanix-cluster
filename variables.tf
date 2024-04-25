@@ -1,30 +1,39 @@
 variable "metal_auth_token" {
   type        = string
-  description = "Equinix Metal API token."
   sensitive   = true
+  description = "Equinix Metal API token."
 }
 
 variable "metal_vlan_description" {
   type        = string
-  description = "Description to add to created VLAN."
   default     = "ntnx-demo"
+  description = "Description to add to created VLAN."
 }
 
 variable "metal_project_name" {
   type        = string
   default     = ""
-  description = "The name of the Metal project in which to deploy the cluster.  If create_project is false and you do not specify a project ID, the project will be looked up by name."
+  description = <<EOT
+  The name of the Metal project in which to deploy the cluster. If `create_project` is false and
+  you do not specify a project ID, the project will be looked up by name. One (and only one) of
+  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.
+  Required if `create_project` is true.
+  EOT
 }
 
 variable "metal_project_id" {
   type        = string
   default     = ""
-  description = "The ID of the Metal project in which to deploy to cluster.  If create_project is false and you specify a project ID, the metal_project_name variable is not used."
+  description = <<EOT
+  The ID of the Metal project in which to deploy to cluster. If `create_project` is false and
+  you do not specify a project name, the project will be looked up by ID. One (and only one) of
+  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.
+  EOT
 }
 
 variable "metal_organization_id" {
   type        = string
-  description = "The ID of the Metal organization in which to create the project if create_project is true."
+  description = "The ID of the Metal organization in which to create the project if `create_project` is true."
 }
 
 variable "metal_metro" {
@@ -34,7 +43,7 @@ variable "metal_metro" {
 variable "create_project" {
   type        = bool
   default     = true
-  description = "(Optional) to use an existing project matching `metal_project_name`, set this to false"
+  description = "(Optional) to use an existing project matching `metal_project_name`, set this to false."
 }
 
 variable "metal_bastion_plan" {
@@ -55,19 +64,23 @@ variable "metal_vlan_id" {
 }
 
 variable "nutanix_node_count" {
-  description = "The number of Nutanix nodes to create"
   type        = number
   default     = 3
+  description = "The number of Nutanix nodes to create."
 }
 
 variable "skip_cluster_creation" {
-  description = "Skip the creation of the Nutanix cluster"
   type        = bool
   default     = false
+  description = "Skip the creation of the Nutanix cluster."
 }
 
 variable "nutanix_reservation_ids" {
-  description = "Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`.  If you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`."
   type        = list(string)
   default     = []
+  description = <<EOT
+  Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must
+  be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`. If
+  you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
+  EOT
 }

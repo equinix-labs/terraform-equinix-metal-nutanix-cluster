@@ -1,5 +1,10 @@
 terraform {
   required_version = ">= 1.0"
+
+  provider_meta "equinix" {
+    module_name = "equinix-metal-nutanix-cluster"
+  }
+
   required_providers {
     equinix = {
       source  = "equinix/equinix"

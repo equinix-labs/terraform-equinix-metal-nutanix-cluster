@@ -26,7 +26,7 @@ This POC is not intended to be used as a demonstration of best practices or Day-
 
 To accommodate deployment requirements, this module will create:
 
-- 1x [c3.small.x86](https://deploy.equinix.com/product/servers/c3-small/) node running [Ubuntu 22.04](https://deploy.equinix.com/developers/docs/metal/operating-systems/supported/#ubuntu) in a [hybrid-bonded networking mode](https://deploy.equinix.com/developers/docs/metal/layer2-networking/hybrid-bonded-mode/)
+- 1x [m3.small.x86](https://deploy.equinix.com/product/servers/m3-small/) node running [Ubuntu 22.04](https://deploy.equinix.com/developers/docs/metal/operating-systems/supported/#ubuntu) in a [hybrid-bonded networking mode](https://deploy.equinix.com/developers/docs/metal/layer2-networking/hybrid-bonded-mode/)
 
   This "bastion" node will act as a router and jump box. DHCP, DNS, and NAT (internet access) functionality will be provided by [`dnsmasq`](https://dnsmasq.org/doc.html).
 
@@ -138,9 +138,11 @@ ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_
 
 ### On-Demand Instances
 
-This POC allocates a m3.small.x86 node for the Bastion host by default, you can change this to another instance type of your choosing by setting the `metal_bastion_plan` variable.
+This POC allocates a [m3.small.x86](https://deploy.equinix.com/product/servers/m3-small/) node for the Bastion host by default, you can change this to another instance type of your choosing by setting the `metal_bastion_plan` variable.
 
-This POC allocates m3.large.x86 instances for the Nutanix nodes. Additionally, only certain m3.large.x86 nodes will work, we recommed the AM and SL Metros for deployment. If a Nutanix node fails to provision, please try again until you get one that works. Production deployments should use qualified [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) instances for Nutanix nodes. This POC can be modified to use these instances by setting the `nutanix_reservation_ids` variable.
+This POC allocates [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) instances for the Nutanix nodes. Additionally, only certain m3.large.x86 nodes will work. At time of writing, we recommend the SL or AM Metros for deployment. If a Nutanix node fails to provision, please try to `terraform apply` again. The failed node will fail to provision and will be removed from your project. Terraform will subsequently attempt to replace those servers.
+
+Production deployments should use qualified [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) instances for Nutanix nodes. You can work with an Equinix Metal sales to obtain a [hardware reservation](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) of known working m3.large.x86 for the Nutanix nodes. This will ensure that you get the correct hardware for your deployment.
 
 ### SSH failures while running on macOS
 

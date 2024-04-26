@@ -125,8 +125,8 @@ resource "equinix_metal_device" "nutanix" {
   count            = var.nutanix_node_count
   project_id       = local.project_id
   hostname         = "nutanix-devrel-test-${count.index}"
-  operating_system = "nutanix_lts_6_5"
-  plan             = "m3.large.x86"
+  operating_system = var.metal_nutanix_os
+  plan             = var.metal_nutanix_plan
   metro            = var.metal_metro
 
   hardware_reservation_id          = lookup(local.nutanix_reservation_ids, count.index, null)

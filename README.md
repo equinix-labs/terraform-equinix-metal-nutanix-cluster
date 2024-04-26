@@ -138,7 +138,9 @@ ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_
 
 ### On-Demand Instances
 
-#### TODO
+This POC allocates a m3.small.x86 node for the Bastion host by default, you can change this to another instance type of your choosing by setting the `metal_bastion_plan` variable.
+
+This POC allocates m3.large.x86 instances for the Nutanix nodes. Additionally, only certain m3.large.x86 nodes will work, we recommed the AM and SL Metros for deployment. If a Nutanix node fails to provision, please try again until you get one that works. Production deployments should use qualified [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) instances for Nutanix nodes. This POC can be modified to use these instances by setting the `nutanix_reservation_ids` variable.
 
 ### SSH failures while running on macOS
 

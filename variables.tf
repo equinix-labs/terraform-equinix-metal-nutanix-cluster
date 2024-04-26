@@ -33,6 +33,7 @@ variable "metal_project_id" {
 
 variable "metal_organization_id" {
   type        = string
+  default     = null
   description = "The ID of the Metal organization in which to create the project if `create_project` is true."
 }
 

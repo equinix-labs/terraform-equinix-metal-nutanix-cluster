@@ -41,6 +41,7 @@ variable "metal_metro" {
   type        = string
   description = "The metro to create the cluster in."
 }
+
 variable "create_project" {
   type        = bool
   default     = true
@@ -49,7 +50,7 @@ variable "create_project" {
 
 variable "metal_bastion_plan" {
   type        = string
-  default     = "c3.small.x86"
+  default     = "m3.small.x86"
   description = "Which plan to use for the bastion host."
 }
 
@@ -62,6 +63,18 @@ variable "metal_vlan_id" {
   type        = number
   default     = null
   description = "ID of the VLAN you wish to use."
+}
+
+variable "metal_nutanix_os" {
+  type        = string
+  default     = "nutanix_lts_6_5"
+  description = "Which OS to use for the Nutanix nodes."
+}
+
+variable "metal_nutanix_plan" {
+  type        = string
+  default     = "m3.large.x86"
+  description = "Which plan to use for the Nutanix nodes (must be Nutanix compatible, see https://deploy.equinix.com/developers/os-compatibility/)"
 }
 
 variable "nutanix_node_count" {

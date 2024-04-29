@@ -28,7 +28,7 @@ terraform {
   }
 }
 
-# Configure the Equinix Metal Provider.
+# Configure the Equinix Metal credentials.
 provider "equinix" {
   auth_token = var.metal_auth_token
 }

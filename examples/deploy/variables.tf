@@ -85,3 +85,15 @@ variable "nutanix_reservation_ids" {
   you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
   EOT
 }
+
+variable "metal_nutanix_os" {
+  type        = string
+  default     = "nutanix_lts_6_5"
+  description = "Which OS to use for the Nutanix nodes."
+}
+
+variable "metal_nutanix_plan" {
+  type        = string
+  default     = "m3.large.x86"
+  description = "Which plan to use for the Nutanix nodes (must be Nutanix compatible, see https://deploy.equinix.com/developers/os-compatibility/)"
+}

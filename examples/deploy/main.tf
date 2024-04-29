@@ -29,4 +29,6 @@ module "nutanix" {
   nutanix_node_count      = var.nutanix_node_count
   skip_cluster_creation   = var.skip_cluster_creation
   nutanix_reservation_ids = var.nutanix_reservation_ids
+  metal_nutanix_os        = var.metal_nutanix_os
+  metal_nutanix_plan      = var.metal_nutanix_plan
 }

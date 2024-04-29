@@ -3,6 +3,7 @@
 # Timeout in seconds (15 minutes)
 timeout=900
 
+counter=0
 until [ -f /var/lib/misc/dnsmasq.leases ] || [ "$counter" -ge "$timeout" ]; do
         echo "Waiting for /var/lib/misc/dnsmasq.leases to exist..."
         sleep 10

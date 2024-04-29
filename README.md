@@ -52,6 +52,12 @@ To accommodate deployment requirements, this module will create:
 
 You'll need [Terraform installed](https://developer.hashicorp.com/terraform/install) and an [Equinix Metal account](https://deploy.equinix.com/developers/docs/metal/identity-access-management/users/) with an [API key](https://deploy.equinix.com/developers/docs/metal/identity-access-management/api-keys/).
 
+The terraform configuration for deploying a proof-of-concept Nutanix cluster is in `examples/deploy`.  Start by changing to that directory:
+
+```sh
+cd examples/deploy
+```
+
 If you have the [Metal CLI](https://deploy.equinix.com/developers/docs/metal/libraries/cli/) configured, the following will setup your authentication and project settings in an OSX or Linux shell environment.
 
 ```sh

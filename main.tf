@@ -69,7 +69,7 @@ resource "equinix_metal_device" "bastion" {
     host_dhcp_start = cidrhost(local.subnet, 3),
     host_dhcp_end   = cidrhost(local.subnet, 15),
     vm_dhcp_start   = cidrhost(local.subnet, 16),
-    vm_dhcp_end     = cidrhost(local.subnet, -2),
+    vm_dhcp_end     = cidrhost(local.subnet, -5),
     lease_time      = "infinite",
     nutanix_mac     = "50:6b:8d:*:*:*",
     set             = "nutanix"

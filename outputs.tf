@@ -23,3 +23,19 @@ output "cvim_ip_address" {
   description = "The IP address of the CVM"
   value       = data.local_file.cvm_ip_address.content
 }
+
+output "virtual_ip_address" {
+  description = "Reserved IP for cluster virtal IP"
+  value       = cidrhost(local.subnet, -2)
+}
+
+output "iscsi_ip_address" {
+  description = "Reserved IP for cluster ISCSI IP"
+  value       = cidrhost(local.subnet, -3)
+}
+
+
+output "prism_central_ip_address" {
+  description = "Reserved IP for Prism Central VM"
+  value       = cidrhost(local.subnet, -4)
+}

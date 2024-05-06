@@ -234,9 +234,12 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|-------------|
 | <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
 | <a name="output_cvim_ip_address"></a> [cvim\_ip\_address](#output\_cvim\_ip\_address) | The IP address of the CVM |
+| <a name="output_iscsi_ip_address"></a> [iscsi\_ip\_address](#output\_iscsi\_ip\_address) | Reserved IP for cluster ISCSI IP |
 | <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |
+| <a name="output_prism_central_ip_address"></a> [prism\_central\_ip\_address](#output\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
 | <a name="output_ssh_forward_command"></a> [ssh\_forward\_command](#output\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
+| <a name="output_virtual_ip_address"></a> [virtual\_ip\_address](#output\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
 <!-- END_TF_DOCS -->
 
 ## Contributing

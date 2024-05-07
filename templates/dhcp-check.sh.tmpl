@@ -1,24 +1,50 @@
 #!/bin/sh
 
-until [ -f /var/lib/misc/dnsmasq.leases ]
-do
+# Timeout in seconds (20 minutes)
+timeout=1200
+# Number of nodes
+num_nodes=${num_nodes}
+# Counter initialization
+counter=0
+
+# Function to check leases existence
+check_leases_existence() {
+    until [ -f /var/lib/misc/dnsmasq.leases ] || [ "$counter" -ge "$timeout" ]; do
         echo "Waiting for /var/lib/misc/dnsmasq.leases to exist..."
-        sleep 5
-done
+        sleep 10
+        counter=$((counter + 10))
+    done
 
-echo "Found /var/lib/misc/dnsmasq.leases.  Examining leases."
+    if [ "$counter" -ge "$timeout" ]; then
+        echo "Timeout reached waiting for /var/lib/misc/dnsmasq.leases to exist."
+        exit 1
+    fi
+}
 
-found_leases=$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)
+# Function to check leases count
+check_leases_count() {
+    found_leases=$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)
 
-until [ "$${found_leases}" -ge ${ 2 * num_nodes } ]
-do
-        echo "Waiting for at least ${ 2 * num_nodes } leases in /var/lib/misc/dnsmasq.leases, found $${found_leases}..."
+    # Note: we wait for "2 * num_nodes" beacuse each node runs the AHV hypervisor and the Nutanix CVM,
+    # each requiring its own IP address.
+    until [ "$${found_leases}" -ge $((2 * num_nodes)) ] || [ "$counter" -ge "$timeout" ]; do
+        echo "Waiting for at least $((2 * num_nodes)) leases in /var/lib/misc/dnsmasq.leases, found $${found_leases}..."
         found_leases=$(grep -c "NTNX" /var/lib/misc/dnsmasq.leases)
-        sleep 5
-done
+        sleep 10
+        counter=$((counter + 10))
+    done
 
-echo "Found the expected ${ 2 * num_nodes } leases in /var/lib/misc/dnsmasq.leases."
+    if [ "$counter" -ge "$timeout" ]; then
+        echo "Timeout reached waiting for at least $((2 * num_nodes)) leases in /var/lib/misc/dnsmasq.leases, found $${found_leases}."
+        exit 1
+    fi
+}
+
+# Main
+check_leases_existence
+echo "Found /var/lib/misc/dnsmasq.leases. Examining leases."
+check_leases_count
+echo "Found the expected $((2 * num_nodes)) leases in /var/lib/misc/dnsmasq.leases."
 
 echo "Sleeping for five minutes to let cluster networking stabilize"
-
 sleep 300

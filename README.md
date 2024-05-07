@@ -105,7 +105,7 @@ You have several ways to access the bastion node, Nutanix nodes, and the cluster
   invoke-expression $(terraform output -raw ssh_forward_command)
   ```
 
-- Then open a browser and navigate to <https://localhost:9440>
+- Then open a browser and navigate to <https://localhost:9440> (the certificate will not match the domain)
 - See [Logging Into Prism Central](https://portal.nutanix.com/page/documents/details?targetId=Prism-Central-Guide-vpc_2023_4:mul-login-pc-t.html) for more details (including default credentials)
 
 ### Access the Bastion host over SSH

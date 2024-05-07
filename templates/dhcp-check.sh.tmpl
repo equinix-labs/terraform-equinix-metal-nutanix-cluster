@@ -4,10 +4,11 @@
 timeout=1200
 # Number of nodes
 num_nodes=${num_nodes}
+# Counter initialization
+counter=0
 
 # Function to check leases existence
 check_leases_existence() {
-    counter=0
     until [ -f /var/lib/misc/dnsmasq.leases ] || [ "$counter" -ge "$timeout" ]; do
         echo "Waiting for /var/lib/misc/dnsmasq.leases to exist..."
         sleep 10

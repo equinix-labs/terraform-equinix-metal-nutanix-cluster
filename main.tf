@@ -3,9 +3,6 @@ locals {
   vlan_id    = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
   vxlan      = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
 
-  # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
-  subnet = "192.168.100.0/22"
-
   nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
 }
 
@@ -64,12 +61,12 @@ resource "equinix_metal_device" "bastion" {
 
   user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
     metal_vlan_id   = local.vxlan,
-    address         = cidrhost(local.subnet, 2),
-    netmask         = cidrnetmask(local.subnet),
-    host_dhcp_start = cidrhost(local.subnet, 3),
-    host_dhcp_end   = cidrhost(local.subnet, 15),
-    vm_dhcp_start   = cidrhost(local.subnet, 16),
-    vm_dhcp_end     = cidrhost(local.subnet, -5),
+    address         = cidrhost(var.cluster_subnet, 2),
+    netmask         = cidrnetmask(var.cluster_subnet),
+    host_dhcp_start = cidrhost(var.cluster_subnet, 3),
+    host_dhcp_end   = cidrhost(var.cluster_subnet, 15),
+    vm_dhcp_start   = cidrhost(var.cluster_subnet, 16),
+    vm_dhcp_end     = cidrhost(var.cluster_subnet, -5),
     lease_time      = "infinite",
     nutanix_mac     = "50:6b:8d:*:*:*",
     set             = "nutanix"
@@ -101,18 +98,18 @@ resource "equinix_metal_vrf" "nutanix" {
   name        = "nutanix-vrf-${random_string.vrf_name_suffix.result}"
   metro       = var.metal_metro
   local_asn   = "65000"
-  ip_ranges   = [local.subnet]
+  ip_ranges   = [var.cluster_subnet]
   project_id  = local.project_id
 }
 
 resource "equinix_metal_reserved_ip_block" "nutanix" {
-  description = "Reserved IP block (${local.subnet}) taken from on of the ranges in the VRF's pool of address space."
+  description = "Reserved IP block (${var.cluster_subnet}) taken from on of the ranges in the VRF's pool of address space."
   project_id  = local.project_id
   metro       = var.metal_metro
   type        = "vrf"
   vrf_id      = equinix_metal_vrf.nutanix.id
-  cidr        = split("/", local.subnet)[1]
-  network     = cidrhost(local.subnet, 0)
+  cidr        = split("/", var.cluster_subnet)[1]
+  network     = cidrhost(var.cluster_subnet, 0)
 }
 
 resource "equinix_metal_gateway" "gateway" {
@@ -231,7 +228,7 @@ resource "null_resource" "finalize_cluster" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/create-cluster.sh.tmpl", {
-      bastion_address = cidrhost(local.subnet, 2),
+      bastion_address = cidrhost(var.cluster_subnet, 2),
     })
     destination = "/root/create-cluster.sh"
   }

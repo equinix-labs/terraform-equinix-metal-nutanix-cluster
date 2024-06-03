@@ -31,6 +31,12 @@ variable "metal_project_id" {
   EOT
 }
 
+variable "cluster_subnet" {
+  type        = string
+  default     = "192.168.100.0/22"
+  description = "nutanix cluster subnet"
+}
+
 variable "metal_organization_id" {
   type        = string
   default     = null

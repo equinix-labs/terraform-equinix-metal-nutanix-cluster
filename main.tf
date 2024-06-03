@@ -154,7 +154,7 @@ resource "null_resource" "wait_for_firstboot" {
   }
 
   provisioner "remote-exec" {
-    script = "scripts/firstboot-check.sh"
+    script = "${path.module}/scripts/firstboot-check.sh"
   }
 }
 

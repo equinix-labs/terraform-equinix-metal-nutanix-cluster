@@ -214,6 +214,7 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|-------------|------|---------|:--------:|
 | <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
 | <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
+| <a name="input_cluster_subnet"></a> [cluster\_subnet](#input\_cluster\_subnet) | nutanix cluster subnet | `string` | `"192.168.100.0/22"` | no |
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false. | `bool` | `true` | no |
 | <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
 | <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"m3.small.x86"` | no |

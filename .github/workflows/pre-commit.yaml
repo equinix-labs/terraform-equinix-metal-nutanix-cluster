@@ -64,7 +64,7 @@ jobs:
             ${{ runner.os }}-terraform-
 
       - name: Install tfsec
-        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        uses: jaxxstorm/action-install-gh-release@v1.12.0
         with:
           repo: aquasecurity/tfsec
           platform: linux
@@ -72,7 +72,7 @@ jobs:
           tag: ${{ matrix.tfsec }}
 
       - name: Install shfmt
-        uses: jaxxstorm/action-install-gh-release@v1.11.0
+        uses: jaxxstorm/action-install-gh-release@v1.12.0
         with:
           repo: mvdan/sh
           platform: linux

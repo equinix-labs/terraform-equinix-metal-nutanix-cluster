@@ -3,6 +3,7 @@ locals {
   vlan_id                 = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
   vxlan                   = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
   vrf_id                  = var.create_vrf ? element(equinix_metal_vrf.nutanix[*].id, 0) : element(data.equinix_metal_vrf.nutanix[*].id, 0)
+
   nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
   cluster_gateway         = var.cluster_gateway == "" ? cidrhost(var.cluster_subnet, 1) : var.cluster_gateway
 }
@@ -42,14 +43,16 @@ module "ssh" {
 }
 
 resource "equinix_metal_vlan" "nutanix" {
-  count       = var.create_vlan ? 1 : 0
+  count = var.create_vlan ? 1 : 0
+
   project_id  = local.project_id
   description = var.metal_vlan_description
   metro       = var.metal_metro
 }
 
 data "equinix_metal_vlan" "nutanix" {
-  count      = var.create_vlan ? 0 : 1
+  count = var.create_vlan ? 0 : 1
+
   project_id = local.project_id
   vxlan      = var.metal_vlan_id
 }
@@ -138,7 +141,6 @@ resource "equinix_metal_device" "nutanix" {
   ip_address {
     type = "private_ipv4"
   }
-
 }
 
 resource "null_resource" "wait_for_firstboot" {

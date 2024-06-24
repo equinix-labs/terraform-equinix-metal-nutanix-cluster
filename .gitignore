@@ -53,3 +53,5 @@ util/keys
 *-kubeconfig
 ssh-key-*
 cvm_ip_address.txt
+
+.idea/

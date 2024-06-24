@@ -1,8 +1,11 @@
 locals {
-  project_id              = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  vlan_id                 = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
-  vxlan                   = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
-  vrf_id                  = var.create_vrf ? element(equinix_metal_vrf.nutanix[*].id, 0) : element(data.equinix_metal_vrf.nutanix[*].id, 0)
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
+  vlan_id    = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
+  vxlan      = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
+
+  # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
+  subnet = "192.168.100.0/22"
+
   nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
 }
 
@@ -41,14 +44,16 @@ module "ssh" {
 }
 
 resource "equinix_metal_vlan" "nutanix" {
-  count       = var.create_vlan ? 1 : 0
+  count = var.create_vlan ? 1 : 0
+
   project_id  = local.project_id
   description = var.metal_vlan_description
   metro       = var.metal_metro
 }
 
 data "equinix_metal_vlan" "nutanix" {
-  count      = var.create_vlan ? 0 : 1
+  count = var.create_vlan ? 0 : 1
+
   project_id = local.project_id
   vxlan      = var.metal_vlan_id
 }
@@ -59,12 +64,12 @@ resource "equinix_metal_device" "bastion" {
 
   user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
     metal_vlan_id   = local.vxlan,
-    address         = cidrhost(var.cluster_subnet, 2),
-    netmask         = cidrnetmask(var.cluster_subnet),
-    host_dhcp_start = cidrhost(var.cluster_subnet, 3),
-    host_dhcp_end   = cidrhost(var.cluster_subnet, 15),
-    vm_dhcp_start   = cidrhost(var.cluster_subnet, 16),
-    vm_dhcp_end     = cidrhost(var.cluster_subnet, -5),
+    address         = cidrhost(local.subnet, 2),
+    netmask         = cidrnetmask(local.subnet),
+    host_dhcp_start = cidrhost(local.subnet, 3),
+    host_dhcp_end   = cidrhost(local.subnet, 15),
+    vm_dhcp_start   = cidrhost(local.subnet, 16),
+    vm_dhcp_end     = cidrhost(local.subnet, -5),
     lease_time      = "infinite",
     nutanix_mac     = "50:6b:8d:*:*:*",
     set             = "nutanix"
@@ -92,28 +97,22 @@ resource "random_string" "vrf_name_suffix" {
 }
 
 resource "equinix_metal_vrf" "nutanix" {
-  count       = var.create_vrf ? 1 : 0
   description = "VRF with ASN 65000 and a pool of address space that includes 192.168.100.0/25"
   name        = "nutanix-vrf-${random_string.vrf_name_suffix.result}"
   metro       = var.metal_metro
   local_asn   = "65000"
-  ip_ranges   = [var.cluster_subnet]
+  ip_ranges   = [local.subnet]
   project_id  = local.project_id
-}
-
-data "equinix_metal_vrf" "nutanix" {
-  count  = var.create_vrf ? 0 : 1
-  vrf_id = var.vrf_id
 }
 
 resource "equinix_metal_reserved_ip_block" "nutanix" {
-  description = "Reserved IP block (${var.cluster_subnet}) taken from on of the ranges in the VRF's pool of address space."
+  description = "Reserved IP block (${local.subnet}) taken from on of the ranges in the VRF's pool of address space."
   project_id  = local.project_id
   metro       = var.metal_metro
   type        = "vrf"
-  vrf_id      = local.vrf_id
-  cidr        = split("/", var.cluster_subnet)[1]
-  network     = cidrhost(var.cluster_subnet, 0)
+  vrf_id      = equinix_metal_vrf.nutanix.id
+  cidr        = split("/", local.subnet)[1]
+  network     = cidrhost(local.subnet, 0)
 }
 
 resource "equinix_metal_gateway" "gateway" {
@@ -136,7 +135,6 @@ resource "equinix_metal_device" "nutanix" {
   ip_address {
     type = "private_ipv4"
   }
-
 }
 
 resource "null_resource" "wait_for_firstboot" {
@@ -230,7 +228,7 @@ resource "null_resource" "finalize_cluster" {
 
   provisioner "file" {
     content = templatefile("${path.module}/templates/create-cluster.sh.tmpl", {
-      bastion_address = cidrhost(var.cluster_subnet, 2),
+      bastion_address = cidrhost(local.subnet, 2),
     })
     destination = "/root/create-cluster.sh"
   }

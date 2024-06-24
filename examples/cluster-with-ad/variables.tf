@@ -79,7 +79,7 @@ variable "metal_nutanix_plan" {
 
 variable "nutanix_node_count" {
   type        = number
-  default     = 3
+  default     = 1
   description = "The number of Nutanix nodes to create."
 }
 

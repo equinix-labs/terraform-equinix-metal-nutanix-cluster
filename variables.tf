@@ -104,3 +104,15 @@ variable "nutanix_reservation_ids" {
   you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
   EOT
 }
+
+variable "create_vrf" {
+  type        = bool
+  default     = true
+  description = "Whether to create a new VRF for this project."
+}
+
+variable "vrf_id" {
+  type        = string
+  default     = null
+  description = "ID of the VRF you wish to use."
+}

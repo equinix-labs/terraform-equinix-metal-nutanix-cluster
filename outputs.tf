@@ -39,3 +39,8 @@ output "prism_central_ip_address" {
   description = "Reserved IP for Prism Central VM"
   value       = cidrhost(var.cluster_subnet, -4)
 }
+
+output "cluster_gateway" {
+  description = "The Nutanix cluster gateway IP"
+  value       = local.cluster_gateway
+}

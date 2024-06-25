@@ -152,6 +152,18 @@ Error messages that match this problem:
 
 - `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
 
+### VLAN Cleanup Failure
+
+During the execution of a Terraform destroy operation, the deletion of a VLAN may fail with an HTTP 422 Unprocessable Entity response. The debug logs indicate that the DELETE request to remove the VLAN was sent successfully, but the response from the Equinix Metal API indicated a failure to process the request. The specific VLAN identified by the ID "xxxx" could not be deleted.
+
+**Fix:**
+
+If you encounter this issue, re-run the `terraform destroy` command to clean up the resources.
+
+```sh
+terraform destroy
+```
+
 ### Other Timeouts and Connection issues
 
 This POC project has not ironed out all potential networking and provisioning timing hiccups that can occur. In many situations, running `terraform apply` again will progress the deployment to the next step. If you do not see progress after 3 attempts, open an issue on GitHub: <https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/issues/new>.

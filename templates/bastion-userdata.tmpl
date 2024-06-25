@@ -36,12 +36,12 @@ write_files:
 - path: /etc/network/interfaces
   append: true
   content: |
-
     auto bond0.${metal_vlan_id}
     iface bond0.${metal_vlan_id} inet static
         pre-up sleep 5
         address ${address}
         netmask ${netmask}
+        gateway ${gateway_address}
         vlan-raw-device bond0
 - path: /etc/dnsmasq.d/nutanix.config
   append: true
@@ -51,6 +51,7 @@ write_files:
     dhcp-range=${host_dhcp_start},${host_dhcp_end},${lease_time}
     dhcp-mac=set:${set},${nutanix_mac}
     dhcp-range=tag:${set},${vm_dhcp_start},${vm_dhcp_end},${lease_time}
+    dhcp-option=option:netmask,${netmask}
 packages:
   - iptables-persistent
   - expect

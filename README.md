@@ -148,6 +148,10 @@ Production deployments should use qualified [Workload Optimized](https://deploy.
 
 The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases this is not a problem, but in our testing on macOS we observed frequent SSH connection errors. These connection errors can be resolved by turning off the SSH agent in your terminal before running `terraform apply`. To turn off your SSH agent in a macOS terminal, run `unset SSH_AUTH_SOCK`.
 
+Error messages that match this problem:
+
+* `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
+
 ### Other Timeouts and Connection issues
 
 This POC project has not ironed out all potential networking and provisioning timing hiccups that can occur. In many situations, running `terraform apply` again will progress the deployment to the next step. If you do not see progress after 3 attempts, open an issue on GitHub: <https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/issues/new>.

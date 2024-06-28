@@ -12,3 +12,7 @@ output "bastion_public_ip" {
   description = "The public IP address of the bastion host"
   value       = module.nutanix-cluster.bastion_public_ip
 }
+
+output "ad_server_ip" {
+  value = equinix_metal_device.ad-server.access_public_ipv4
+}

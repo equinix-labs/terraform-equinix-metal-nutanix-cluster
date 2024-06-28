@@ -4,6 +4,12 @@ output "ssh_private_key" {
   sensitive   = false
 }
 
+output "ssh_key_id" {
+  description = "The ssh key Id for the SSH keypair"
+  value       = module.ssh.equinix_metal_ssh_key_id
+  sensitive   = false
+}
+
 output "bastion_public_ip" {
   description = "The public IP address of the bastion host"
   value       = equinix_metal_device.bastion.access_public_ipv4

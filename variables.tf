@@ -31,6 +31,12 @@ variable "metal_project_id" {
   EOT
 }
 
+variable "cluster_subnet" {
+  type        = string
+  default     = "192.168.100.0/22"
+  description = "nutanix cluster subnet"
+}
+
 variable "metal_organization_id" {
   type        = string
   default     = null
@@ -97,4 +103,16 @@ variable "nutanix_reservation_ids" {
   be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`. If
   you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
   EOT
+}
+
+variable "create_vrf" {
+  type        = bool
+  default     = true
+  description = "Whether to create a new VRF for this project."
+}
+
+variable "vrf_id" {
+  type        = string
+  default     = null
+  description = "ID of the VRF you wish to use."
 }

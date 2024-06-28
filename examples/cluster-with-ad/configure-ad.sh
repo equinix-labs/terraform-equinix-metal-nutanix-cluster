@@ -1,18 +1,18 @@
 #!/bin/bash
-
-# Install prerequisites, e.g., curl or jq for JSON parsing if needed
-# sudo apt-get update && sudo apt-get install -y curl jq
+set -v
 
 # Assuming Nutanix Prism is already installed and accessible at this point
 # Replace these variables with actual values
-PRISM_IP=""
-PRISM_USER="admin"
-PRISM_PASSWORD=""
-AD_DOMAIN=""
-AD_USERNAME=""
-AD_PASSWORD=""
 
-ssh -L 9440:$CVM_IP_ADDRESS:9440 -L 19440:$PRISM_IP:9440 -i $PRIVATE_KEY root@$BASTION_PUBLIC_KEY
+sudo apt-get update && sudo apt-get install -y curl jq
+
+#PRISM_IP="192.168.103.252"
+#PRISM_USER="admin"
+#PRISM_PASSWORD="Nutanix/4u)"
+#AD_DOMAIN="147.75.205.246"
+#AD_USERNAME="admin"
+#AD_PASSWORD="Equinix@AD"
+#BASTION_PUBLIC_KEY="147.28.207.213"
 
 # Login to Prism and get a session token
 # The specifics of these commands will depend on the Nutanix API and may need adjustment
@@ -21,9 +21,11 @@ TOKEN=$(curl -s -k -X POST https://$PRISM_IP:9440/PrismGateway/services/rest/v1/
     --data-binary '{"username":"'"$PRISM_USER"'","password":"'"$PRISM_PASSWORD"'"}' \
     | jq -r '.session_token')
 
+echo "$TOKEN"
+
 # Configure AD authentication (adjust payload as needed for your AD setup)
 curl -s -k -X POST https://$PRISM_IP:9440/PrismGateway/services/rest/v1/authconfig/directories \
-    -H "Authorization: Bearer $TOKEN"
+    -H "Authorization: Bearer $TOKEN" \
     -H 'Content-Type: application/json' --data-binary '{
                                                          "name": "'"$AD_DOMAIN"'",
                                                           "directoryUrl": "ldap://'$AD_DOMAIN'",

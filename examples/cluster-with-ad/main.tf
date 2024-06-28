@@ -18,11 +18,6 @@ module "nutanix-cluster" {
   skip_cluster_creation   = var.skip_cluster_creation
 }
 
-# module "ssh" {
-#   source     = "../../modules/ssh/"
-#   project_id = local.project_id
-# }
-
 data "equinix_metal_vlan" "nutanix" {
   vlan_id = local.vlan_id
 }

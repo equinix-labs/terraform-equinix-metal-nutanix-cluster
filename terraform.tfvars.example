@@ -12,4 +12,5 @@
 # metal_vlan_id=null # ID of the VLAN you wish to use. e.g. 1234
 # nutanix_node_count=3 # The number of Nutanix nodes to create.
 # skip_cluster_creation=false # Skip the creation of the Nutanix cluster.
+# cluster_subnet="192.168.140.0/22" # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
 # nutanix_reservation_ids=[] # Hardware reservation IDs to use for the Nutanix nodes

@@ -150,7 +150,7 @@ The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases t
 
 Error messages that match this problem:
 
-* `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
+- `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
 
 ### Other Timeouts and Connection issues
 

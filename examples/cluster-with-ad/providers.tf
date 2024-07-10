@@ -30,5 +30,5 @@ terraform {
 
 # Configure the Equinix Metal credentials.
 provider "equinix" {
-  auth_token = "U45b8v8a29CYgm9M5qhqWwYn97aDLpph"
+  auth_token = var.metal_auth_token
 }

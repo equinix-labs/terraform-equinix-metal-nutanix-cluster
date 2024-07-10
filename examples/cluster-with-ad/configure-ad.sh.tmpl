@@ -1,0 +1,36 @@
+#!/bin/sh
+set -v
+
+# Assuming Nutanix Prism is already installed and accessible at this point
+# Replace these variables with actual values
+
+sudo apt-get update && sudo apt-get install -y curl jq
+
+#$(terraform output -raw ssh_forward_command)
+
+# Login to Prism and get a session token
+# The specifics of these commands will depend on the Nutanix API and may need adjustment
+TOKEN=$(curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/utils/login \
+    -H 'Content-Type: application/json' \
+    --data-binary '{"username":"'"${PRISM_USER}"'","password":"'"${PRISM_PASSWORD}"'"}' --show-error \
+    | jq -r '.session_token')
+
+# Configure AD authentication (adjust payload as needed for your AD setup)
+curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories \
+    -H "Authorization: Bearer $TOKEN" \
+    -H 'Content-Type: application/json' --show-error --data-binary '{
+                                                         "name": "'"${AD_DOMAIN}"'",
+                                                          "directoryUrl": "ldap://'${AD_DOMAIN}'",
+                                                          "domain": "'"${AD_DOMAIN}"'",
+                                                          "serviceAccountUsername": "'"${AD_USERNAME}"'",
+                                                          "serviceAccountPassword": "'"${AD_PASSWORD}"'",
+                                                          "connectionType": "LDAP",
+                                                          "directoryType": "ACTIVE_DIRECTORY"
+                                                        }'
+
+if [ "$?" -eq 0 ]; then
+    echo "AD authentication configured successfully."
+else
+    echo "Failed to configure AD authentication."
+    exit 1
+fi

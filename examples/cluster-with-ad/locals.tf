@@ -6,5 +6,5 @@ locals {
   ad_domain_name = "equinixad.com"
   ad_admin_user = "Admin"
 
-  subnet = "192.168.100.0/22"
+  subnet = "192.168.140.0/22"
 }

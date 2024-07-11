@@ -52,7 +52,7 @@ resource "equinix_metal_port" "ad_server_bond0" {
   vlan_ids = [local.vlan_id]
 }
 
-resource "null_resource" "bastion_ssh_1" {
+resource "null_resource" "bastion_ssh" {
   depends_on = [equinix_metal_device.ad-server]
 
   connection {
@@ -77,8 +77,4 @@ resource "null_resource" "bastion_ssh_1" {
   provisioner "remote-exec" {
     inline = ["/bin/sh /root/configure-ad.sh"]
   }
-
-#   provisioner "local-exec" {
-#     command = "scp -i ${module.ssh.ssh_private_key} -o StrictHostKeyChecking=no root@${equinix_metal_device.bastion.access_public_ipv4}:/root/cvm_ip_address.txt ${path.module}/cvm_ip_address.txt"
-#   }
 }

@@ -1,0 +1,186 @@
+#!/bin/sh
+set -v
+
+# Assuming Nutanix Prism is already installed and accessible at this point
+# Replace these variables with actual values
+
+sudo apt-get update && sudo apt-get install -y curl jq
+
+# Login to Prism and get a session token
+# The specifics of these commands will depend on the Nutanix API and may need adjustment
+TOKEN=$(curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/utils/login \
+    -H 'Content-Type: application/json' \
+    --data-binary '{"username":"'"${PRISM_USER}"'","password":"'"${PRISM_PASSWORD}"'"}' --show-error \
+    | jq -r '.session_token')
+
+# Variables
+PRISM_IP="192.168.103.252"
+PRISM_PORT="9440"
+USERNAME="admin"
+PASSWORD="your_password"
+VIRTUAL_IP="192.168.103.254"
+ISCSI_IP="192.168.103.253"
+NTP_SERVER="0.north-america.pool.ntp.org"
+PRISM_CENTRAL_IP="192.168.103.252"
+SUBNET_MASK="255.255.252.0"
+GATEWAY="192.168.100.2"
+VM_IP="192.168.103.252"
+DNS_SERVERS=("1.1.1.1" "8.8.8.8")
+
+# Function to make API requests
+api_request() {
+    local METHOD=$1
+    local ENDPOINT=$2
+    local DATA=$3
+    curl -s -k -u "$USERNAME:$PASSWORD" -X $METHOD "https://$PRISM_IP:$PRISM_PORT/$ENDPOINT" \
+        -H "Content-Type: application/json" \
+        -d "$DATA"
+}
+# 1. Set Virtual IP and iSCSI Data Services IP
+api_request "PUT" "api/nutanix/v3/clusters/cluster_uuid" '{
+  "spec": {
+    "resources": {
+      "network": {
+        "virtual_ip_address": "'"$VIRTUAL_IP"'"
+      },
+      "data_services_ip": {
+        "iscsi_ip_address": "'"$ISCSI_IP"'"
+      }
+    }
+  }
+}'
+# 2. Configure NTP Server
+api_request "PUT" "api/nutanix/v3/clusters/cluster_uuid/ntp_servers" '{
+  "ntp_servers": ["'"$NTP_SERVER"'"]
+}'
+
+
+# 3. Deploy Prism Central
+api_request "POST" "api/nutanix/v3/prism_central" '{
+     "spec": {
+       "resources": {
+         "network": {
+           "ip_config": {
+             "gateway": "'"$GATEWAY"'",
+             "subnet_mask": "'"$SUBNET_MASK"'",
+             "ip_address": "'"$VM_IP"'"
+           },
+           "network_name": "VM Network",
+           "vlan_id": 0
+         },
+         "service_config": {
+           "deployment_type": "single_vm",
+           "size": "small"
+         }
+       }
+     },
+     "metadata": {
+       "kind": "prism_central"
+     }
+   }'
+
+   # Wait for Prism Central to deploy
+   echo "Waiting for Prism Central deployment to complete..."
+   sleep 600  # Adjust sleep duration based on your environment
+
+   # 4. Log in to Prism Central and change password
+   # This step cannot be fully automated in a shell script due to interactive login. You can use tools like expect or automate this in a more advanced automation framework.
+
+   # 5. Register Prism Central VM
+   api_request "POST" "api/nutanix/v3/prism_central_register" '{
+     "prism_central_ip": "'"$PRISM_CENTRAL_IP"'",
+     "port": "'"$PRISM_PORT"'",
+     "username": "'"$USERNAME"'",
+     "password": "'"$PASSWORD"'"
+   }'
+
+   # 6. Configure DNS Servers in Prism Central
+   api_request "PUT" "api/nutanix/v3/prism_central/dns_servers" '{
+     "dns_servers": ["'"${DNS_SERVERS[0]}"'", "'"${DNS_SERVERS[1]}"'"]
+   }'
+
+   # 7. Configure NTP Server in Prism Central
+   api_request "PUT" "api/nutanix/v3/prism_central/ntp_servers" '{
+     "ntp_servers": ["'"$NTP_SERVER"'"]
+   }'
+
+   echo "Prism Central configuration completed successfully."
+
+#######################
+# Step 1: Set up Virtual IP, iSCSI IP, and NTP for the Cluster
+curl -u "$username:$password" -k -X POST "https://$prismCentralIP:9440/api/nutanix/v3/clusters/configure" -H "Content-Type: application/json" -d '{
+  "virtualIP": "'$clusterVirtualIP'",
+  "iSCSIIP": "'$clusterISCSIIP'",
+  "ntpServers": ["0.north-america.pool.ntp.org"]
+}'
+
+# Step 3: Deploy Prism Central
+curl -X POST "https://<Prism_Element_IP>:9440/api/nutanix/v3/prism_central" \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <session_token>" \
+-d '{
+  "spec": {
+    "name": "PrismCentralName",
+    "resources": {
+      "version": "pc_version",
+      "pc_vm_list": [
+        {
+          "cpu": 8,
+          "memory": 32,
+          "disk_size_gb": 500,
+          "network_configuration": {
+            "network_uuid": "network_uuid",
+            "subnet_mask": "255.255.255.0",
+            "gateway": "gateway_ip",
+            "ip_list": ["desired_ip_address"]
+          }
+        }
+      ]
+          }
+        },
+        "api_version": "3.1",
+        "metadata": {
+          "kind": "prism_central"
+        }
+      }'
+
+# Step 4: Log in to Prism Central and Change its Password
+# First, login might require obtaining a session token
+loginResponse=$(curl -k -s -X POST "https://$prismCentralIP:9440/api/nutanix/v3/sessions" -H "Content-Type: application/json" -d '{
+                                                                            "username": "'$username'",
+                                                                            "password": "'$password'"
+                                                                          }')
+
+                                                                          # Extract token (Assuming the token field exists in the response. Adjust as necessary.)
+                                                                          token=$(echo $loginResponse | jq -r .token)
+
+                                                                          # Change password
+                                                                          curl -k -X PUT "https://$prismCentralIP:9440/PrismGateway/services/rest/v1/utils/change_password" -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d '{
+                                                                            "oldPassword": "'$password'",
+                                                                            "newPassword": "'$newPassword'"
+                                                                          }'
+
+# Step 4: Register the Prism Central VM
+# Assume you've changed the password and logged in again to obtain a new session token if necessary
+# Registration of Prism Central VM might not be directly available or straightforward via API. Adjust as necessary.
+# This is a conceptual step to illustrate the process. Check Nutanix's API documentation for specific endpoints and requirements.
+curl -k -X POST "https://$prismCentralIP:9440/api/nutanix/v3/prism_central/register" \
+-H "Authorization: Bearer $token" \
+-H "Content-Type: application/json" -d '{
+                                         "prismCentralIP": "'$prismCentralIP'",
+                                         "username": "'$username'",
+                                         "password": "'$newPassword'"
+                                       }'
+
+                                       # Step 5: Configure Prism Central
+                                       # Add Name Servers
+                                       curl -k -X POST "https://$prismCentralIP:9440/api/nutanix/v3/name_servers" -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d '{
+                                         "nameServers": ["1.1.1.1", "8.8.8.8"]
+                                       }'
+
+                                       # Add NTP Servers
+                                       curl -k -X POST "https://$prismCentralIP:9440/api/nutanix/v3/ntp_servers" -H "Authorization: Bearer $token" -H "Content-Type: application/json" -d '{
+                                         "ntpServers": ["0.north-america.pool.ntp.org"]
+                                       }'
+
+                                       echo "Configuration steps completed. Verify setup on Prism Central UI."

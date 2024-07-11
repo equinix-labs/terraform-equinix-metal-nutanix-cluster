@@ -6,14 +6,14 @@ set -v
 
 sudo apt-get update && sudo apt-get install -y curl jq
 
-#$(terraform output -raw ssh_forward_command)
-
 # Login to Prism and get a session token
 # The specifics of these commands will depend on the Nutanix API and may need adjustment
-TOKEN=$(curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/utils/login \
-    -H 'Content-Type: application/json' \
-    --data-binary '{"username":"'"${PRISM_USER}"'","password":"'"${PRISM_PASSWORD}"'"}' --show-error \
-    | jq -r '.session_token')
+#TOKEN=$(curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/utils/login \
+#    -H 'Content-Type: application/json' \
+#    --data-binary '{"username":"'"${PRISM_USER}"'","password":"'"${PRISM_PASSWORD}"'"}' --show-error \
+#    | jq -r '.session_token')
+
+TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"username": "'${PRISM_USER}'", "password": "'${PRISM_PASSWORD}"}' http://${PRISM_IP}:9440/api/nutanix/v3/authenticate | jq -r .metadata.auth_token)
 
 # Configure AD authentication (adjust payload as needed for your AD setup)
 curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories \

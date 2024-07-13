@@ -4,6 +4,7 @@ locals {
   vxlan                   = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
   vrf_id                  = var.create_vrf ? element(equinix_metal_vrf.nutanix[*].id, 0) : element(data.equinix_metal_vrf.nutanix[*].id, 0)
   nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
+  cluster_gateway         = var.cluster_gateway == "" ? cidrhost(var.cluster_subnet, 1) : var.cluster_gateway
 }
 
 resource "terraform_data" "input_validation" {
@@ -60,7 +61,8 @@ resource "equinix_metal_device" "bastion" {
   user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
     metal_vlan_id   = local.vxlan,
     address         = cidrhost(var.cluster_subnet, 2),
-    netmask         = cidrnetmask(var.cluster_subnet),
+    netmask         = cidrnetmask(cidrsubnet(var.cluster_subnet, -1, -1)),
+    gateway_address = local.cluster_gateway,
     host_dhcp_start = cidrhost(var.cluster_subnet, 3),
     host_dhcp_end   = cidrhost(var.cluster_subnet, 15),
     vm_dhcp_start   = cidrhost(var.cluster_subnet, 16),

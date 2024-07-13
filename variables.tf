@@ -116,3 +116,9 @@ variable "vrf_id" {
   default     = null
   description = "ID of the VRF you wish to use."
 }
+
+variable "cluster_gateway" {
+  description = "The cluster gateway IP address"
+  type        = string
+  default     = ""
+}

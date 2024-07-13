@@ -231,6 +231,7 @@ To view examples for how you can leverage this module, please see the [examples]
 |------|-------------|------|---------|:--------:|
 | <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
 | <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
+| <a name="input_cluster_gateway"></a> [cluster\_gateway](#input\_cluster\_gateway) | The cluster gateway IP address | `string` | `""` | no |
 | <a name="input_cluster_subnet"></a> [cluster\_subnet](#input\_cluster\_subnet) | nutanix cluster subnet | `string` | `"192.168.100.0/22"` | no |
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false. | `bool` | `true` | no |
 | <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
@@ -253,6 +254,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | Name | Description |
 |------|-------------|
 | <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_cluster_gateway"></a> [cluster\_gateway](#output\_cluster\_gateway) | The Nutanix cluster gateway IP |
 | <a name="output_cvim_ip_address"></a> [cvim\_ip\_address](#output\_cvim\_ip\_address) | The IP address of the CVM |
 | <a name="output_iscsi_data_services_ip"></a> [iscsi\_data\_services\_ip](#output\_iscsi\_data\_services\_ip) | Reserved IP for cluster ISCSI Data Services IP |
 | <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |

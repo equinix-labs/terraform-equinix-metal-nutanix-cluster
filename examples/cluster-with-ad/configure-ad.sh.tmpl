@@ -6,27 +6,21 @@ set -v
 
 sudo apt-get update && sudo apt-get install -y curl jq
 
-# Login to Prism and get a session token
-# The specifics of these commands will depend on the Nutanix API and may need adjustment
-#TOKEN=$(curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/utils/login \
-#    -H 'Content-Type: application/json' \
-#    --data-binary '{"username":"'"${PRISM_USER}"'","password":"'"${PRISM_PASSWORD}"'"}' --show-error \
-#    | jq -r '.session_token')
-
-TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"username": "'${PRISM_USER}'", "password": "'${PRISM_PASSWORD}"}' http://${PRISM_IP}:9440/api/nutanix/v3/authenticate | jq -r .metadata.auth_token)
+TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${PRISM_PASSWORD}" | base64)
 
 # Configure AD authentication (adjust payload as needed for your AD setup)
-curl -s -k -X POST https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories \
+curl -s -k -X POST https://"${PRISM_IP}":9440/PrismGateway/services/rest/v2.0/authconfig/directories \
     -H "Authorization: Bearer $TOKEN" \
     -H 'Content-Type: application/json' --show-error --data-binary '{
-                                                         "name": "'"${AD_DOMAIN}"'",
-                                                          "directoryUrl": "ldap://'${AD_DOMAIN}'",
-                                                          "domain": "'"${AD_DOMAIN}"'",
-                                                          "serviceAccountUsername": "'"${AD_USERNAME}"'",
-                                                          "serviceAccountPassword": "'"${AD_PASSWORD}"'",
-                                                          "connectionType": "LDAP",
-                                                          "directoryType": "ACTIVE_DIRECTORY"
-                                                        }'
+  "connection_type": "LDAP",
+  "directory_type": "ACTIVE_DIRECTORY",
+  "directory_url": "ldap//:'"${AD_DOMAIN_IP}"'",
+  "domain": "'"${AD_DOMAIN}"'",
+  "name": "equinix-ad",
+  "service_account_password": "'"${AD_USERNAME}"'",
+  "service_account_username": "'"${AD_PASSWORD}"'",
+  "group_search_type": "NON_RECURSIVE"
+}'
 
 if [ "$?" -eq 0 ]; then
     echo "AD authentication configured successfully."

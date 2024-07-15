@@ -10,7 +10,7 @@ terraform {
       source  = "equinix/equinix"
       version = ">= 1.30"
     }
-
+    # tflint-ignore: terraform_unused_required_providers
     null = {
       source  = "hashicorp/null"
       version = ">= 3"
@@ -20,7 +20,7 @@ terraform {
       source  = "hashicorp/random"
       version = ">= 3"
     }
-
+    # tflint-ignore: terraform_unused_required_providers
     local = {
       source  = "hashicorp/local"
       version = ">= 2.5"
@@ -73,7 +73,7 @@ data "equinix_metal_vrf" "nutanix" {
 
 module "nutanix_cluster1" {
   source             = "equinix-labs/metal-nutanix-cluster/equinix"
-  version            = "0.3.1"
+  version            = "0.4.0"
   metal_auth_token   = var.metal_auth_token
   metal_metro        = var.metal_metro
   create_project     = false
@@ -87,7 +87,7 @@ module "nutanix_cluster1" {
 
 module "nutanix_cluster2" {
   source             = "equinix-labs/metal-nutanix-cluster/equinix"
-  version            = "0.3.1"
+  version            = "0.4.0"
   metal_auth_token   = var.metal_auth_token
   metal_metro        = var.metal_metro
   create_project     = false

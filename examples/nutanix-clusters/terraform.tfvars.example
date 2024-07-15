@@ -14,4 +14,3 @@
 # skip_cluster_creation = false             # Skip the creation of the Nutanix cluster.
 # cluster_subnet        = "192.168.96.0/21" # Pick an arbitrary private subnet, we recommend a /22 like "192.168.100.0/22"
 # nutanix_reservation_ids=[] # Hardware reservation IDs to use for the Nutanix nodes
-

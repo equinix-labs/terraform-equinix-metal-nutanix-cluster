@@ -50,10 +50,10 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
     ```
 
     1.4. Network Topology:
-
     ![Network Topology](assets/NutanixClusterTopology.jpg)
 
     1.5. After a successful run, the expected output is:
+
     ```
     Outputs:
 
@@ -98,21 +98,21 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
     1.5. Run the firewall rules to establish connectivity between the two clusters:
 
-        1.5.1. On Cluster 1:
+    1.5.1. On Cluster 1:
 
-        ```sh
-        ssh -L 9440:192.168.97.57:9440 -L 19440:192.168.99.252:9440 -i /Users/vasubabu/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-qh0f2 root@145.40.91.33
-        ssh admin@192.168.97.57
-        sudo ip route add 192.168.100.0/22 via 192.168.96.1
-        ```
+    ```sh
+    ssh -L 9440:192.168.97.57:9440 -L 19440:192.168.99.252:9440 -i /Users/vasubabu/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-qh0f2 root@145.40.91.33
+    ssh admin@192.168.97.57
+    sudo ip route add 192.168.100.0/22 via 192.168.96.1
+    ```
 
-        1.5.2. On Cluster 2:
+    1.5.2. On Cluster 2:
 
-        ```sh
-        ssh -L 9442:192.168.102.176:9440 -L 19442:192.168.103.252:9440 -i /Users/vasubabu/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-lha20 root@145.40.91.141
-        ssh admin@192.168.102.176
-        sudo ip route add 192.168.96.0/22 via 192.168.100.1
-        ```
+    ```sh
+    ssh -L 9442:192.168.102.176:9440 -L 19442:192.168.103.252:9440 -i /Users/vasubabu/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-lha20 root@145.40.91.141
+    ssh admin@192.168.102.176
+    sudo ip route add 192.168.96.0/22 via 192.168.100.1
+    ```
 
     **Note:** It is recommended to use Cluster 1 in a normal window and Cluster 2 in an incognito window.
 

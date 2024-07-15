@@ -1,14 +1,11 @@
-# output "ssh_private_key" {
-#   description = "The private key for the SSH keypair"
-#   value       = ${path.module}/module.ssh.ssh_private_key
-#   sensitive   = false
-# }
 output "nutanix_cluster1_ssh_private_key" {
-  value = module.nutanix_cluster1.ssh_private_key
+  description = "The SSH keypair's private key for cluster1"
+  value       = module.nutanix_cluster1.ssh_private_key
 }
 
 output "nutanix_cluster2_ssh_private_key" {
-  value = module.nutanix_cluster2.ssh_private_key
+  description = "The SSH keypair's private key for cluster1"
+  value       = module.nutanix_cluster2.ssh_private_key
 }
 
 output "nutanix_cluster1_bastion_public_ip" {

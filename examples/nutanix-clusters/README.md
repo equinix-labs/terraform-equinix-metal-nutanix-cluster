@@ -167,3 +167,83 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
     After migration is initiated, it will take a while. You can see the progress in recent tasks.
     ![Migrate Progress](assets/MigrateProgress.jpg)
     ![Migrate Success](assets/MigrateSuccess.jpg)
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.30 |
+| <a name="requirement_local"></a> [local](#requirement\_local) | >= 2.5 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >= 3 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.30 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_nutanix_cluster1"></a> [nutanix\_cluster1](#module\_nutanix\_cluster1) | equinix-labs/metal-nutanix-cluster/equinix | 0.4.0 |
+| <a name="module_nutanix_cluster2"></a> [nutanix\_cluster2](#module\_nutanix\_cluster2) | equinix-labs/metal-nutanix-cluster/equinix | 0.4.0 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_project) | resource |
+| [equinix_metal_vrf.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_vrf) | resource |
+| [random_string.vrf_name_suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
+| [equinix_metal_project.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_project) | data source |
+| [equinix_metal_vrf.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_vrf) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
+| <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
+| <a name="input_cluster_subnet"></a> [cluster\_subnet](#input\_cluster\_subnet) | nutanix cluster subnet | `string` | `"192.168.100.0/22"` | no |
+| <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false. | `bool` | `true` | no |
+| <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
+| <a name="input_create_vrf"></a> [create\_vrf](#input\_create\_vrf) | Whether to create a new VRF for this project. | `bool` | `true` | no |
+| <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | The plan to use for the bastion host. | `string` | `"t3.small.x86"` | no |
+| <a name="input_metal_nutanix_os"></a> [metal\_nutanix\_os](#input\_metal\_nutanix\_os) | The operating system to use for the Nutanix nodes. | `string` | `"ubuntu_20_04"` | no |
+| <a name="input_metal_nutanix_plan"></a> [metal\_nutanix\_plan](#input\_metal\_nutanix\_plan) | The plan to use for the Nutanix nodes. | `string` | `"c3.small.x86"` | no |
+| <a name="input_metal_organization_id"></a> [metal\_organization\_id](#input\_metal\_organization\_id) | The ID of the Metal organization in which to create the project if `create_project` is true. | `string` | `null` | no |
+| <a name="input_metal_project_id"></a> [metal\_project\_id](#input\_metal\_project\_id) | The ID of the Metal project in which to deploy to cluster. If `create_project` is false and<br>  you do not specify a project name, the project will be looked up by ID. One (and only one) of<br>  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set. | `string` | `""` | no |
+| <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster. If `create_project` is false and<br>you do not specify a project ID, the project will be looked up by name. One (and only one) of<br>`metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.<br>Required if `create_project` is true. | `string` | `""` | no |
+| <a name="input_metal_subnet"></a> [metal\_subnet](#input\_metal\_subnet) | Nutanix cluster subnet. | `string` | `"192.168.96.0/21"` | no |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
+| <a name="input_metal_vlan_id"></a> [metal\_vlan\_id](#input\_metal\_vlan\_id) | ID of the VLAN you wish to use. | `number` | `null` | no |
+| <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create. | `number` | `2` | no |
+| <a name="input_skip_cluster_creation"></a> [skip\_cluster\_creation](#input\_skip\_cluster\_creation) | Skip the creation of the Nutanix cluster. | `bool` | `false` | no |
+| <a name="input_vrf_id"></a> [vrf\_id](#input\_vrf\_id) | ID of the VRF you wish to use. | `string` | `null` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_nutanix_cluster1_bastion_public_ip"></a> [nutanix\_cluster1\_bastion\_public\_ip](#output\_nutanix\_cluster1\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_nutanix_cluster1_cluster_gateway"></a> [nutanix\_cluster1\_cluster\_gateway](#output\_nutanix\_cluster1\_cluster\_gateway) | The Nutanix cluster gateway IP |
+| <a name="output_nutanix_cluster1_cvim_ip_address"></a> [nutanix\_cluster1\_cvim\_ip\_address](#output\_nutanix\_cluster1\_cvim\_ip\_address) | The IP address of the CVM |
+| <a name="output_nutanix_cluster1_iscsi_data_services_ip"></a> [nutanix\_cluster1\_iscsi\_data\_services\_ip](#output\_nutanix\_cluster1\_iscsi\_data\_services\_ip) | Reserved IP for cluster ISCSI Data Services IP |
+| <a name="output_nutanix_cluster1_prism_central_ip_address"></a> [nutanix\_cluster1\_prism\_central\_ip\_address](#output\_nutanix\_cluster1\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
+| <a name="output_nutanix_cluster1_ssh_forward_command"></a> [nutanix\_cluster1\_ssh\_forward\_command](#output\_nutanix\_cluster1\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
+| <a name="output_nutanix_cluster1_ssh_private_key"></a> [nutanix\_cluster1\_ssh\_private\_key](#output\_nutanix\_cluster1\_ssh\_private\_key) | The SSH keypair's private key for cluster1 |
+| <a name="output_nutanix_cluster1_virtual_ip_address"></a> [nutanix\_cluster1\_virtual\_ip\_address](#output\_nutanix\_cluster1\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
+| <a name="output_nutanix_cluster2_bastion_public_ip"></a> [nutanix\_cluster2\_bastion\_public\_ip](#output\_nutanix\_cluster2\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_nutanix_cluster2_cluster_gateway"></a> [nutanix\_cluster2\_cluster\_gateway](#output\_nutanix\_cluster2\_cluster\_gateway) | The Nutanix cluster gateway IP |
+| <a name="output_nutanix_cluster2_cvim_ip_address"></a> [nutanix\_cluster2\_cvim\_ip\_address](#output\_nutanix\_cluster2\_cvim\_ip\_address) | The IP address of the CVM |
+| <a name="output_nutanix_cluster2_iscsi_data_services_ip"></a> [nutanix\_cluster2\_iscsi\_data\_services\_ip](#output\_nutanix\_cluster2\_iscsi\_data\_services\_ip) | Reserved IP for cluster ISCSI Data Services IP |
+| <a name="output_nutanix_cluster2_prism_central_ip_address"></a> [nutanix\_cluster2\_prism\_central\_ip\_address](#output\_nutanix\_cluster2\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
+| <a name="output_nutanix_cluster2_ssh_forward_command"></a> [nutanix\_cluster2\_ssh\_forward\_command](#output\_nutanix\_cluster2\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
+| <a name="output_nutanix_cluster2_ssh_private_key"></a> [nutanix\_cluster2\_ssh\_private\_key](#output\_nutanix\_cluster2\_ssh\_private\_key) | The SSH keypair's private key for cluster1 |
+| <a name="output_nutanix_cluster2_virtual_ip_address"></a> [nutanix\_cluster2\_virtual\_ip\_address](#output\_nutanix\_cluster2\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
+<!-- END_TF_DOCS -->

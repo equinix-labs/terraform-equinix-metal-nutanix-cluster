@@ -156,6 +156,7 @@ The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases t
 Error messages that match this problem:
 
 - `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
+- `Failed to upload script: ssh: rejected: administratively prohibited (open failed)`
 
 ### VLAN Cleanup Failure
 
@@ -172,6 +173,10 @@ terraform destroy
 ### Other Timeouts and Connection issues
 
 This POC project has not ironed out all potential networking and provisioning timing hiccups that can occur. In many situations, running `terraform apply` again will progress the deployment to the next step. If you do not see progress after 3 attempts, open an issue on GitHub: <https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/issues/new>.
+
+Error messages that match this problem:
+
+- `timeout while waiting for state to become 'active, failed' (last state: 'provisioning', timeout:`
 
 ## Examples
 

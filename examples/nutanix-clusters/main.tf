@@ -72,35 +72,29 @@ data "equinix_metal_vrf" "nutanix" {
 }
 
 module "nutanix_cluster1" {
-  source                 = "../.."
-  cluster_name           = "nutanix-a"
-  metal_vlan_description = "nutanix-a"
-  metal_nutanix_os       = "nutanix_lts_6_5"
-  metal_auth_token       = var.metal_auth_token
-  metal_metro            = var.metal_metro
-  create_project         = false
-  nutanix_node_count     = var.nutanix_node_count
-  metal_project_id       = local.project_id
-  cluster_subnet         = cidrsubnet(var.metal_subnet, 1, 0) # "192.168.96.0/22"
-  vrf_id                 = local.vrf_id
-  create_vrf             = false
-  create_vlan            = true
-  skip_cluster_creation  = false
+  source             = "equinix-labs/metal-nutanix-cluster/equinix"
+  version            = "0.4.0"
+  metal_auth_token   = var.metal_auth_token
+  metal_metro        = var.metal_metro
+  create_project     = false
+  nutanix_node_count = var.nutanix_node_count
+  metal_project_id   = local.project_id
+  cluster_subnet     = "192.168.96.0/22"
+  vrf_id             = local.vrf_id
+  create_vrf         = false
+  create_vlan        = true
 }
 
 module "nutanix_cluster2" {
-  source                 = "../.."
-  cluster_name           = "nutanix-b"
-  metal_vlan_description = "nutanix-b"
-  metal_nutanix_os       = "nutanix_lts_6_5"
-  metal_auth_token       = var.metal_auth_token
-  metal_metro            = var.metal_metro
-  create_project         = false
-  nutanix_node_count     = var.nutanix_node_count
-  metal_project_id       = local.project_id
-  cluster_subnet         = cidrsubnet(var.metal_subnet, 1, 1) # "192.168.100.0/22"
-  vrf_id                 = local.vrf_id
-  create_vrf             = false
-  create_vlan            = true
-  skip_cluster_creation  = false
+  source             = "equinix-labs/metal-nutanix-cluster/equinix"
+  version            = "0.4.0"
+  metal_auth_token   = var.metal_auth_token
+  metal_metro        = var.metal_metro
+  create_project     = false
+  nutanix_node_count = var.nutanix_node_count
+  metal_project_id   = local.project_id
+  cluster_subnet     = "192.168.100.0/22"
+  vrf_id             = local.vrf_id
+  create_vrf         = false
+  create_vlan        = true
 }

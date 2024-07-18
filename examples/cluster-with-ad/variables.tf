@@ -4,6 +4,30 @@ variable "metal_auth_token" {
   description = "Equinix Metal API token."
 }
 
+variable "new_prism_password" {
+  type = string
+  sensitive = true
+  description = "New Password to set on Prism element and prism central"
+}
+
+variable "ad_password" {
+  type = string
+  sensitive = true
+  description = "New Password to set on AD"
+}
+
+variable "ad_domain" {
+  type = string
+  default = "equinixad.com"
+  description = "Domain Name to set on Active Directory configuration"
+}
+
+variable "ad_admin_user" {
+  type = string
+  default = "equinix-user"
+  description = "Admin User Name for Active Directory configuration"
+}
+
 variable "metal_vlan_description" {
   type        = string
   default     = "ntnx-demo"

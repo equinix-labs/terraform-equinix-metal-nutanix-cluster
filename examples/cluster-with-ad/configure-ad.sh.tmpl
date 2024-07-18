@@ -1,30 +1,109 @@
 #!/bin/sh
-set -v
+set -ev
 
 # Assuming Nutanix Prism is already installed and accessible at this point
 # Replace these variables with actual values
 
 sudo apt-get update && sudo apt-get install -y curl jq
 
-TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${PRISM_PASSWORD}" | base64)
+DEFAULT_TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${DEFAULT_PASSWORD}" | base64)
+TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${NEW_PASSWORD}" | base64)
+
+curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/utils/change_default_system_password" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Basic $DEFAULT_TOKEN" \
+        --header 'Content-Type: application/json' \
+        --fail \
+        --data '{
+                  "oldPassword": "'"$DEFAULT_PASSWORD"'",
+                  "newPassword": "'"$NEW_PASSWORD"'"
+                }'
+
+if [ "$?" -eq 0 ]; then
+    echo "password changed successfully"
+else
+    echo "Failed to change the password."
+    exit 1
+fi
+
+curl -s -k -X POST "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/eulas/accept" \
+        --header 'Accept: application/json' \
+        --header "Authorization: Basic $TOKEN" \
+        --header 'Content-Type: application/json' \
+        --fail --data '{
+                          "companyName": "equinix",
+                          "jobTitle": "Software Engineer",
+                          "username": "admin"
+                       }'
+
+if [ "$?" -eq 0 ]; then
+    echo "Accepted EULAS liscence"
+else
+    echo "Failed to accept EULAS"
+    exit 1
+fi
+
+curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/pulse" \
+      --header 'Accept: application/json' \
+      --header "Authorization: Basic $TOKEN" \
+      --header 'Content-Type: application/json' \
+      --fail --data '{
+                      "defaultNutanixEmail": null,
+                      "emailContactList": null,
+                      "enable": false,
+                      "enableDefaultNutanixEmail": false,
+                      "isPulsePromptNeeded": false,
+                      "nosVersion": null,
+                      "remindLater": null,
+                      "verbosityType": null
+                    }'
+
+if [ "$?" -eq 0 ]; then
+    echo "Disabled Pulse"
+else
+    echo "Failed to disable pulse"
+    exit 1
+fi
 
 # Configure AD authentication (adjust payload as needed for your AD setup)
-curl -s -k -X POST https://"${PRISM_IP}":9440/PrismGateway/services/rest/v2.0/authconfig/directories \
-    -H "Authorization: Bearer $TOKEN" \
-    -H 'Content-Type: application/json' --show-error --data-binary '{
-  "connection_type": "LDAP",
-  "directory_type": "ACTIVE_DIRECTORY",
-  "directory_url": "ldap//:'"${AD_DOMAIN_IP}"'",
-  "domain": "'"${AD_DOMAIN}"'",
-  "name": "equinix-ad",
-  "service_account_password": "'"${AD_USERNAME}"'",
-  "service_account_username": "'"${AD_PASSWORD}"'",
-  "group_search_type": "NON_RECURSIVE"
-}'
+curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v2.0/authconfig/directories" \
+    -H "Authorization: Basic $TOKEN" \
+    -H 'Content-Type: application/json' \
+    --fail --data-binary '{
+                            "connection_type": "LDAP",
+                            "directory_type": "ACTIVE_DIRECTORY",
+                            "directory_url": "ldap://'"${AD_DOMAIN_IP}"'",
+                            "domain": "'"${AD_DOMAIN}"'",
+                            "name": "equinix-ad",
+                            "service_account_username": "'"${AD_USERNAME}"'",
+                            "service_account_password": "'"${AD_PASSWORD}"'",
+                            "group_search_type": "NON_RECURSIVE"
+                          }'
 
 if [ "$?" -eq 0 ]; then
     echo "AD authentication configured successfully."
 else
     echo "Failed to configure AD authentication."
+    exit 1
+fi
+
+# Configure Role Mappings
+curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_map" \
+    -H "Authorization: Basic $TOKEN" \
+    -H 'Content-Type: application/json' \
+    --fail --data-binary '{
+                            "directoryName": "equinix-ad",
+                            "entityType": "USER",
+                            "entityValues": [
+                              "Admin",
+                              "equinix-user"
+                            ],
+                            "role": "ROLE_CLUSTER_ADMIN"
+                          }'
+
+if [ "$?" -eq 0 ]; then
+    echo "Role mapping to AD configured successfully."
+else
+    echo "Failed to configure Role mapping to AD."
     exit 1
 fi

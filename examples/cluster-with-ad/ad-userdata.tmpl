@@ -22,8 +22,8 @@ Add-NetLbfoTeamNic -Team bond_bond0 -VlanID ${vxlan} -Confirm:$false
 Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 Import-Module ADDSDeployment
 
-Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString "Equinix@AD" -AsPlainText -Force)
-Set-LocalUser -Name "${user}" -Password (ConvertTo-SecureString "Equinix@AD" -AsPlainText -Force)
+Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString "${ad_password}" -AsPlainText -Force)
+Set-LocalUser -Name "${user}" -Password (ConvertTo-SecureString "${ad_password}" -AsPlainText -Force)
 
 # Install Forest
 ```powershell
@@ -34,7 +34,7 @@ Install-ADDSForest `
 -LogPath "C:\Windows\NTDS" `
 -SysvolPath "C:\Windows\SYSVOL" `
 -Force:$true `
--SafeModeAdministratorPassword (ConvertTo-SecureString -String "Equinix@AD" -AsPlainText -Force) `
+-SafeModeAdministratorPassword (ConvertTo-SecureString -String "${ad_password}" -AsPlainText -Force) `
 -NoRebootOnCompletion:$true
 
 # Refresh the view in Server Manager

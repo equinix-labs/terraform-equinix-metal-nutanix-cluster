@@ -40,8 +40,9 @@ resource "equinix_metal_device" "ad-server" {
 
   user_data = templatefile("${path.module}/ad-userdata.tmpl", {
     vxlan  = local.vxlan
-    domain = local.ad_domain_name
-    user   = local.ad_admin_user
+    domain = var.ad_domain
+    user   = var.ad_admin_user
+    ad_password = var.ad_password
   })
 }
 
@@ -50,34 +51,6 @@ resource "equinix_metal_port" "ad_server_bond0" {
   layer2   = false
   bonded   = true
   vlan_ids = [local.vlan_id]
-}
-
-resource "null_resource" "setup_prism_central" {
-  depends_on = [equinix_metal_device.ad-server]
-
-  connection {
-    host        = module.nutanix-cluster.bastion_public_ip
-    private_key = chomp(module.nutanix-cluster.ssh_private_key_contents)
-    type        = "ssh"
-    user        = "root"
-  }
-
-  provisioner "file" {
-    destination = "/root/setup-prism-central.sh"
-    content = templatefile("${path.module}/setup-prism-central.sh.tmpl", {
-      PRISM_IP           = module.nutanix-cluster.prism_central_ip_address
-      USERNAME         = "admin"
-      DEFAULT_PASSWORD     = "Nutanix/4u)"
-      NEW_PASSWORD      ="A@yush17"
-      VIRTUAL_IP        ="192.168.103.254"
-      ISCSI_IP          ="192.168.103.253"
-      NTP_SERVER        ="0.north-america.pool.ntp.org"
-    })
-  }
-
-  provisioner "remote-exec" {
-    inline = ["/bin/sh /root/setup-prism-central.sh"]
-  }
 }
 
 resource "null_resource" "bastion_ssh" {
@@ -93,17 +66,18 @@ resource "null_resource" "bastion_ssh" {
   provisioner "file" {
     destination = "/root/configure-ad.sh"
     content = templatefile("${path.module}/configure-ad.sh.tmpl", {
-      PRISM_IP           = module.nutanix-cluster.prism_central_ip_address
+      PRISM_IP           = module.nutanix-cluster.cvim_ip_address
       PRISM_USERNAME         = "admin"
-      PRISM_PASSWORD     = "Nutanix/4u)"
-      AD_DOMAIN          = "equinixad.com"
+      DEFAULT_PASSWORD     = "Nutanix/4u)"
+      NEW_PASSWORD     = var.new_prism_password
+      AD_DOMAIN          = var.ad_domain
       AD_DOMAIN_IP          = equinix_metal_device.ad-server.access_public_ipv4
-      AD_USERNAME        = "admin"
-      AD_PASSWORD        = "Equinix@AD"
+      AD_USERNAME        = var.ad_admin_user
+      AD_PASSWORD        = var.ad_password
     })
   }
 
   provisioner "remote-exec" {
-    inline = ["/bin/sh /root/configure-ad.sh"]
+    inline = ["/bin/bash /root/configure-ad.sh"]
   }
 }

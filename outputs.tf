@@ -4,6 +4,12 @@ output "ssh_private_key" {
   sensitive   = false
 }
 
+output "ssh_private_key_contents" {
+  description = "The private key contents for the SSH keypair"
+  value       = module.ssh.ssh_private_key_contents
+  sensitive   = false
+}
+
 output "ssh_key_id" {
   description = "The ssh key Id for the SSH keypair"
   value       = module.ssh.equinix_metal_ssh_key_id

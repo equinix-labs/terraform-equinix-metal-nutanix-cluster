@@ -144,7 +144,10 @@ resource "equinix_metal_device" "nutanix" {
 }
 
 resource "null_resource" "wait_for_firstboot" {
-  depends_on = [equinix_metal_port.bastion_bond0]
+  depends_on = [
+    equinix_metal_port.bastion_bond0,
+    equinix_metal_device.nutanix
+  ]
   count      = var.nutanix_node_count
 
   connection {

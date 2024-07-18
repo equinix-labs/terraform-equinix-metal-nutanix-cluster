@@ -116,7 +116,7 @@ resource "equinix_metal_reserved_ip_block" "nutanix" {
   project_id  = local.project_id
   metro       = var.metal_metro
   type        = "vrf"
-  vrf_id      = equinix_metal_vrf.nutanix.id
+  vrf_id      = local.vrf_id
   cidr        = split("/", var.cluster_subnet)[1]
   network     = cidrhost(var.cluster_subnet, 0)
 }

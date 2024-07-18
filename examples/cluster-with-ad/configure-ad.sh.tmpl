@@ -13,7 +13,7 @@ curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/u
         --header 'Accept: application/json' \
         --header "Authorization: Basic $DEFAULT_TOKEN" \
         --header 'Content-Type: application/json' \
-        --fail \
+        --fail --show-error \
         --data '{
                   "oldPassword": "'"$DEFAULT_PASSWORD"'",
                   "newPassword": "'"$NEW_PASSWORD"'"
@@ -30,11 +30,11 @@ curl -s -k -X POST "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/
         --header 'Accept: application/json' \
         --header "Authorization: Basic $TOKEN" \
         --header 'Content-Type: application/json' \
-        --fail --data '{
-                          "companyName": "equinix",
-                          "jobTitle": "Software Engineer",
-                          "username": "admin"
-                       }'
+        --fail --show-error  --data '{
+                                        "companyName": "equinix",
+                                        "jobTitle": "Software Engineer",
+                                        "username": "admin"
+                                     }'
 
 if [ "$?" -eq 0 ]; then
     echo "Accepted EULAS liscence"
@@ -47,16 +47,16 @@ curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/p
       --header 'Accept: application/json' \
       --header "Authorization: Basic $TOKEN" \
       --header 'Content-Type: application/json' \
-      --fail --data '{
-                      "defaultNutanixEmail": null,
-                      "emailContactList": null,
-                      "enable": false,
-                      "enableDefaultNutanixEmail": false,
-                      "isPulsePromptNeeded": false,
-                      "nosVersion": null,
-                      "remindLater": null,
-                      "verbosityType": null
-                    }'
+      --fail --show-error --data '{
+                                    "defaultNutanixEmail": null,
+                                    "emailContactList": null,
+                                    "enable": false,
+                                    "enableDefaultNutanixEmail": false,
+                                    "isPulsePromptNeeded": false,
+                                    "nosVersion": null,
+                                    "remindLater": null,
+                                    "verbosityType": null
+                                  }'
 
 if [ "$?" -eq 0 ]; then
     echo "Disabled Pulse"
@@ -69,16 +69,16 @@ fi
 curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v2.0/authconfig/directories" \
     -H "Authorization: Basic $TOKEN" \
     -H 'Content-Type: application/json' \
-    --fail --data-binary '{
-                            "connection_type": "LDAP",
-                            "directory_type": "ACTIVE_DIRECTORY",
-                            "directory_url": "ldap://'"${AD_DOMAIN_IP}"'",
-                            "domain": "'"${AD_DOMAIN}"'",
-                            "name": "equinix-ad",
-                            "service_account_username": "'"${AD_USERNAME}"'",
-                            "service_account_password": "'"${AD_PASSWORD}"'",
-                            "group_search_type": "NON_RECURSIVE"
-                          }'
+    --fail --show-error --data-binary '{
+                                        "connection_type": "LDAP",
+                                        "directory_type": "ACTIVE_DIRECTORY",
+                                        "directory_url": "ldap://'"${AD_DOMAIN_IP}"'",
+                                        "domain": "'"${AD_DOMAIN}"'",
+                                        "name": "equinix-ad",
+                                        "service_account_username": "'"${AD_USERNAME}"'",
+                                        "service_account_password": "'"${AD_PASSWORD}"'",
+                                        "group_search_type": "NON_RECURSIVE"
+                                      }'
 
 if [ "$?" -eq 0 ]; then
     echo "AD authentication configured successfully."
@@ -91,15 +91,15 @@ fi
 curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_map" \
     -H "Authorization: Basic $TOKEN" \
     -H 'Content-Type: application/json' \
-    --fail --data-binary '{
-                            "directoryName": "equinix-ad",
-                            "entityType": "USER",
-                            "entityValues": [
-                              "Admin",
-                              "equinix-user"
-                            ],
-                            "role": "ROLE_CLUSTER_ADMIN"
-                          }'
+    --fail --show-error --data-binary '{
+                                        "directoryName": "equinix-ad",
+                                        "entityType": "USER",
+                                        "entityValues": [
+                                          "Admin",
+                                          "equinix-user"
+                                        ],
+                                        "role": "ROLE_CLUSTER_ADMIN"
+                                      }'
 
 if [ "$?" -eq 0 ]; then
     echo "Role mapping to AD configured successfully."

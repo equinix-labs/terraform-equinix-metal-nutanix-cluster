@@ -1,8 +1,8 @@
 locals {
-  project_id              = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
-  vlan_id                 = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
-  vxlan                   = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
-  vrf_id                  = var.create_vrf ? element(equinix_metal_vrf.nutanix[*].id, 0) : element(data.equinix_metal_vrf.nutanix[*].id, 0)
+  project_id = var.create_project ? element(equinix_metal_project.nutanix[*].id, 0) : element(data.equinix_metal_project.nutanix[*].id, 0)
+  vlan_id    = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].id, 0) : element(data.equinix_metal_vlan.nutanix[*].id, 0)
+  vxlan      = var.create_vlan ? element(equinix_metal_vlan.nutanix[*].vxlan, 0) : element(data.equinix_metal_vlan.nutanix[*].vxlan, 0)
+  vrf_id     = var.create_vrf ? element(equinix_metal_vrf.nutanix[*].id, 0) : element(data.equinix_metal_vrf.nutanix[*].id, 0)
 
   nutanix_reservation_ids = { for idx, val in var.nutanix_reservation_ids : idx => val }
   cluster_gateway         = var.cluster_gateway == "" ? cidrhost(var.cluster_subnet, 1) : var.cluster_gateway
@@ -148,7 +148,7 @@ resource "null_resource" "wait_for_firstboot" {
     equinix_metal_port.bastion_bond0,
     equinix_metal_device.nutanix
   ]
-  count      = var.nutanix_node_count
+  count = var.nutanix_node_count
 
   connection {
     bastion_host        = equinix_metal_device.bastion.access_public_ipv4

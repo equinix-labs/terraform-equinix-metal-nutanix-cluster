@@ -1,4 +1,4 @@
-module "nutanix-cluster" {
+module "nutanix_cluster" {
   source = "../.."
 
   metal_auth_token        = var.metal_auth_token
@@ -20,14 +20,14 @@ module "nutanix-cluster" {
 
 data "equinix_metal_vlan" "nutanix" {
   depends_on = [
-    module.nutanix-cluster
+    module.nutanix_cluster
   ]
   vlan_id = local.vlan_id
 }
 
-resource "equinix_metal_device" "ad-server" {
+resource "equinix_metal_device" "ad_server" {
   depends_on = [
-    module.nutanix-cluster,
+    module.nutanix_cluster,
     data.equinix_metal_vlan.nutanix
   ]
 
@@ -36,7 +36,7 @@ resource "equinix_metal_device" "ad-server" {
   hostname            = "ad-server"
   plan                = "c3.small.x86"
   metro               = var.metal_metro
-  project_ssh_key_ids = [module.nutanix-cluster.ssh_key_id]
+  project_ssh_key_ids = [module.nutanix_cluster.ssh_key_id]
 
   user_data = templatefile("${path.module}/ad-userdata.tmpl", {
     vxlan       = local.vxlan
@@ -47,18 +47,18 @@ resource "equinix_metal_device" "ad-server" {
 }
 
 resource "equinix_metal_port" "ad_server_bond0" {
-  port_id  = [for p in equinix_metal_device.ad-server.ports : p.id if p.name == "bond0"][0]
+  port_id  = [for p in equinix_metal_device.ad_server.ports : p.id if p.name == "bond0"][0]
   layer2   = false
   bonded   = true
   vlan_ids = [local.vlan_id]
 }
 
 resource "null_resource" "bastion_ssh" {
-  depends_on = [equinix_metal_device.ad-server]
+  depends_on = [equinix_metal_device.ad_server]
 
   connection {
-    host        = module.nutanix-cluster.bastion_public_ip
-    private_key = chomp(module.nutanix-cluster.ssh_private_key_contents)
+    host        = module.nutanix_cluster.bastion_public_ip
+    private_key = chomp(module.nutanix_cluster.ssh_private_key_contents)
     type        = "ssh"
     user        = "root"
   }
@@ -66,12 +66,12 @@ resource "null_resource" "bastion_ssh" {
   provisioner "file" {
     destination = "/root/configure-ad.sh"
     content = templatefile("${path.module}/configure-ad.sh.tmpl", {
-      PRISM_IP         = module.nutanix-cluster.cvim_ip_address
+      PRISM_IP         = module.nutanix_cluster.cvim_ip_address
       PRISM_USERNAME   = "admin"
       DEFAULT_PASSWORD = "Nutanix/4u)"
       NEW_PASSWORD     = var.new_prism_password
       AD_DOMAIN        = var.ad_domain
-      AD_DOMAIN_IP     = equinix_metal_device.ad-server.access_public_ipv4
+      AD_DOMAIN_IP     = equinix_metal_device.ad_server.access_public_ipv4
       AD_USERNAME      = var.ad_admin_user
       AD_PASSWORD      = var.ad_password
     })

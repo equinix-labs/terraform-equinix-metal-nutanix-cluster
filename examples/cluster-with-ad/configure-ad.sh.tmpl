@@ -10,44 +10,44 @@ DEFAULT_TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${DEFAULT_PASSWORD}" | base6
 TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${NEW_PASSWORD}" | base64)
 
 curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/utils/change_default_system_password" \
-        --header 'Accept: application/json' \
-        --header "Authorization: Basic $DEFAULT_TOKEN" \
-        --header 'Content-Type: application/json' \
-        --fail --show-error \
-        --data '{
+	--header 'Accept: application/json' \
+	--header "Authorization: Basic $DEFAULT_TOKEN" \
+	--header 'Content-Type: application/json' \
+	--fail --show-error \
+	--data '{
                   "oldPassword": "'"$DEFAULT_PASSWORD"'",
                   "newPassword": "'"$NEW_PASSWORD"'"
                 }'
 
 if [ "$?" -eq 0 ]; then
-    echo "password changed successfully"
+	echo "password changed successfully"
 else
-    echo "Failed to change the password."
-    exit 1
+	echo "Failed to change the password."
+	exit 1
 fi
 
 curl -s -k -X POST "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/eulas/accept" \
-        --header 'Accept: application/json' \
-        --header "Authorization: Basic $TOKEN" \
-        --header 'Content-Type: application/json' \
-        --fail --show-error  --data '{
+	--header 'Accept: application/json' \
+	--header "Authorization: Basic $TOKEN" \
+	--header 'Content-Type: application/json' \
+	--fail --show-error --data '{
                                         "companyName": "equinix",
                                         "jobTitle": "Software Engineer",
                                         "username": "admin"
                                      }'
 
 if [ "$?" -eq 0 ]; then
-    echo "Accepted EULAS liscence"
+	echo "Accepted EULAS liscence"
 else
-    echo "Failed to accept EULAS"
-    exit 1
+	echo "Failed to accept EULAS"
+	exit 1
 fi
 
 curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/pulse" \
-      --header 'Accept: application/json' \
-      --header "Authorization: Basic $TOKEN" \
-      --header 'Content-Type: application/json' \
-      --fail --show-error --data '{
+	--header 'Accept: application/json' \
+	--header "Authorization: Basic $TOKEN" \
+	--header 'Content-Type: application/json' \
+	--fail --show-error --data '{
                                     "defaultNutanixEmail": null,
                                     "emailContactList": null,
                                     "enable": false,
@@ -59,17 +59,17 @@ curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/p
                                   }'
 
 if [ "$?" -eq 0 ]; then
-    echo "Disabled Pulse"
+	echo "Disabled Pulse"
 else
-    echo "Failed to disable pulse"
-    exit 1
+	echo "Failed to disable pulse"
+	exit 1
 fi
 
 # Configure AD authentication (adjust payload as needed for your AD setup)
 curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v2.0/authconfig/directories" \
-    -H "Authorization: Basic $TOKEN" \
-    -H 'Content-Type: application/json' \
-    --fail --show-error --data-binary '{
+	-H "Authorization: Basic $TOKEN" \
+	-H 'Content-Type: application/json' \
+	--fail --show-error --data-binary '{
                                         "connection_type": "LDAP",
                                         "directory_type": "ACTIVE_DIRECTORY",
                                         "directory_url": "ldap://'"${AD_DOMAIN_IP}"'",
@@ -81,17 +81,17 @@ curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v2.0/aut
                                       }'
 
 if [ "$?" -eq 0 ]; then
-    echo "AD authentication configured successfully."
+	echo "AD authentication configured successfully."
 else
-    echo "Failed to configure AD authentication."
-    exit 1
+	echo "Failed to configure AD authentication."
+	exit 1
 fi
 
 # Configure Role Mappings
 curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_map" \
-    -H "Authorization: Basic $TOKEN" \
-    -H 'Content-Type: application/json' \
-    --fail --show-error --data-binary '{
+	-H "Authorization: Basic $TOKEN" \
+	-H 'Content-Type: application/json' \
+	--fail --show-error --data-binary '{
                                         "directoryName": "equinix-ad",
                                         "entityType": "USER",
                                         "entityValues": [
@@ -102,8 +102,8 @@ curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authc
                                       }'
 
 if [ "$?" -eq 0 ]; then
-    echo "Role mapping to AD configured successfully."
+	echo "Role mapping to AD configured successfully."
 else
-    echo "Failed to configure Role mapping to AD."
-    exit 1
+	echo "Failed to configure Role mapping to AD."
+	exit 1
 fi

@@ -41,7 +41,7 @@ resource "equinix_metal_device" "ad_server" {
   user_data = templatefile("${path.module}/ad-userdata.tmpl", {
     vxlan       = local.vxlan
     domain      = var.ad_domain
-    user        = var.ad_admin_user
+    user        = var.ad_non_admin_user
     ad_password = var.ad_password
   })
 }
@@ -67,12 +67,13 @@ resource "null_resource" "bastion_ssh" {
     destination = "/root/configure-ad.sh"
     content = templatefile("${path.module}/configure-ad.sh.tmpl", {
       PRISM_IP         = module.nutanix_cluster.cvim_ip_address
+      PRISM_PORT       = "9440"
       PRISM_USERNAME   = "admin"
-      DEFAULT_PASSWORD = "Nutanix/4u)"
+      DEFAULT_PASSWORD = "Nutanix/4u"
       NEW_PASSWORD     = var.new_prism_password
       AD_DOMAIN        = var.ad_domain
       AD_DOMAIN_IP     = equinix_metal_device.ad_server.access_public_ipv4
-      AD_USERNAME      = var.ad_admin_user
+      AD_USERNAME      = var.ad_non_admin_user
       AD_PASSWORD      = var.ad_password
     })
   }

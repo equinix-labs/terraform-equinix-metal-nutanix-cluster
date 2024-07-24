@@ -9,15 +9,15 @@ sudo apt-get update && sudo apt-get install -y curl jq
 DEFAULT_TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${DEFAULT_PASSWORD}" | base64)
 TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${NEW_PASSWORD}" | base64)
 
-curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/utils/change_default_system_password" \
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/utils/change_default_system_password" \
 	--header 'Accept: application/json' \
 	--header "Authorization: Basic $DEFAULT_TOKEN" \
 	--header 'Content-Type: application/json' \
 	--fail --show-error \
 	--data '{
-                  "oldPassword": "'"$DEFAULT_PASSWORD"'",
-                  "newPassword": "'"$NEW_PASSWORD"'"
-                }'
+            "oldPassword": "${DEFAULT_PASSWORD}",
+            "newPassword": "${NEW_PASSWORD}"
+          }'
 
 if [ "$?" -eq 0 ]; then
 	echo "password changed successfully"
@@ -26,15 +26,15 @@ else
 	exit 1
 fi
 
-curl -s -k -X POST "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/eulas/accept" \
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/eulas/accept" \
 	--header 'Accept: application/json' \
 	--header "Authorization: Basic $TOKEN" \
 	--header 'Content-Type: application/json' \
 	--fail --show-error --data '{
-                                        "companyName": "equinix",
-                                        "jobTitle": "Software Engineer",
-                                        "username": "admin"
-                                     }'
+                                  "companyName": "equinix",
+                                  "jobTitle": "Software Engineer",
+                                  "username": "admin"
+                               }'
 
 if [ "$?" -eq 0 ]; then
 	echo "Accepted EULAS liscence"
@@ -43,20 +43,20 @@ else
 	exit 1
 fi
 
-curl -s -k -X PUT "https://$PRISM_IP:$PRISM_PORT/PrismGateway/services/rest/v1/pulse" \
+curl -s -k -X PUT "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/pulse" \
 	--header 'Accept: application/json' \
 	--header "Authorization: Basic $TOKEN" \
 	--header 'Content-Type: application/json' \
 	--fail --show-error --data '{
-                                    "defaultNutanixEmail": null,
-                                    "emailContactList": null,
-                                    "enable": false,
-                                    "enableDefaultNutanixEmail": false,
-                                    "isPulsePromptNeeded": false,
-                                    "nosVersion": null,
-                                    "remindLater": null,
-                                    "verbosityType": null
-                                  }'
+                                "defaultNutanixEmail": null,
+                                "emailContactList": null,
+                                "enable": false,
+                                "enableDefaultNutanixEmail": false,
+                                "isPulsePromptNeeded": false,
+                                "nosVersion": null,
+                                "remindLater": null,
+                                "verbosityType": null
+                              }'
 
 if [ "$?" -eq 0 ]; then
 	echo "Disabled Pulse"
@@ -66,17 +66,17 @@ else
 fi
 
 # Configure AD authentication (adjust payload as needed for your AD setup)
-curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v2.0/authconfig/directories" \
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v2.0/authconfig/directories" \
 	-H "Authorization: Basic $TOKEN" \
 	-H 'Content-Type: application/json' \
 	--fail --show-error --data-binary '{
                                         "connection_type": "LDAP",
                                         "directory_type": "ACTIVE_DIRECTORY",
-                                        "directory_url": "ldap://'"${AD_DOMAIN_IP}"'",
-                                        "domain": "'"${AD_DOMAIN}"'",
+                                        "directory_url": "ldap://${AD_DOMAIN_IP}",
+                                        "domain": "${AD_DOMAIN}",
                                         "name": "equinix-ad",
-                                        "service_account_username": "'"${AD_USERNAME}"'",
-                                        "service_account_password": "'"${AD_PASSWORD}"'",
+                                        "service_account_username": "${AD_USERNAME}",
+                                        "service_account_password": "${AD_PASSWORD}",
                                         "group_search_type": "NON_RECURSIVE"
                                       }'
 
@@ -88,7 +88,7 @@ else
 fi
 
 # Configure Role Mappings
-curl -s -k -X POST "https://${PRISM_IP}:9440/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_map" \
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_mappings" \
 	-H "Authorization: Basic $TOKEN" \
 	-H 'Content-Type: application/json' \
 	--fail --show-error --data-binary '{

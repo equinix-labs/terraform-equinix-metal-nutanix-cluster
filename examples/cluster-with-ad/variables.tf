@@ -22,7 +22,7 @@ variable "ad_domain" {
   description = "Domain Name to set on Active Directory configuration"
 }
 
-variable "ad_admin_user" {
+variable "ad_non_admin_user" {
   type        = string
   default     = "equinix-user"
   description = "Admin User Name for Active Directory configuration"

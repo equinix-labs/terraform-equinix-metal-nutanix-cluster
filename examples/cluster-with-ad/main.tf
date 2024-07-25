@@ -38,7 +38,7 @@ resource "equinix_metal_device" "ad_server" {
   metro               = var.metal_metro
   project_ssh_key_ids = [module.nutanix_cluster.ssh_key_id]
 
-  user_data = templatefile("${path.module}/ad-userdata.tmpl", {
+  user_data = templatefile("${path.module}/templates/ad-userdata.tmpl", {
     vxlan       = local.vxlan
     domain      = var.ad_domain
     user        = var.ad_non_admin_user
@@ -65,7 +65,7 @@ resource "null_resource" "bastion_ssh" {
 
   provisioner "file" {
     destination = "/root/configure-ad.sh"
-    content = templatefile("${path.module}/configure-ad.sh.tmpl", {
+    content = templatefile("${path.module}/templates/configure-ad.sh.tmpl", {
       PRISM_IP         = module.nutanix_cluster.cvim_ip_address
       PRISM_PORT       = "9440"
       PRISM_USERNAME   = "admin"

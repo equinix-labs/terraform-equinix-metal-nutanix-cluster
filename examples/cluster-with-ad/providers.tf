@@ -11,9 +11,21 @@ terraform {
       version = ">= 1.30"
     }
 
+    # tflint-ignore: terraform_unused_required_providers
     null = {
       source  = "hashicorp/null"
       version = ">= 3"
+    }
+
+    random = {
+      source  = "hashicorp/random"
+      version = ">= 3"
+    }
+
+    # tflint-ignore: terraform_unused_required_providers
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.5"
     }
   }
 }

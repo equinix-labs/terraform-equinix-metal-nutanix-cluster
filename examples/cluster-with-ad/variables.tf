@@ -25,7 +25,7 @@ variable "ad_domain" {
 variable "ad_non_admin_user" {
   type        = string
   default     = "equinix-user"
-  description = "Admin User Name for Active Directory configuration"
+  description = "Non Admin User Name for Active Directory configuration"
 }
 
 variable "metal_vlan_description" {
@@ -99,6 +99,12 @@ variable "metal_nutanix_plan" {
   type        = string
   default     = "m3.large.x86"
   description = "Which plan to use for the Nutanix nodes (must be Nutanix compatible, see https://deploy.equinix.com/developers/os-compatibility/)"
+}
+
+variable "metal_ad_server_plan" {
+  type        = string
+  default     = "c3.small.x86"
+  description = "Which plan to use for the Active Directory Windows Server"
 }
 
 variable "nutanix_node_count" {

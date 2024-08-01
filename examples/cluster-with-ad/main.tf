@@ -34,7 +34,7 @@ resource "equinix_metal_device" "ad_server" {
   operating_system    = "windows_2022"
   project_id          = local.project_id
   hostname            = "ad-server"
-  plan                = "c3.small.x86"
+  plan                = var.metal_ad_server_plan
   metro               = var.metal_metro
   project_ssh_key_ids = [module.nutanix_cluster.ssh_key_id]
 
@@ -73,7 +73,7 @@ resource "null_resource" "bastion_ssh" {
       NEW_PASSWORD     = var.new_prism_password
       AD_DOMAIN        = var.ad_domain
       AD_DOMAIN_IP     = equinix_metal_device.ad_server.access_public_ipv4
-      AD_USERNAME      = var.ad_non_admin_user
+      AD_USERNAME      = "Admin"
       AD_PASSWORD      = var.ad_password
     })
   }

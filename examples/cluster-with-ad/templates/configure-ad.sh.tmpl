@@ -65,6 +65,8 @@ else
 	exit 1
 fi
 
+sleep 60s
+
 # Configure AD authentication (adjust payload as needed for your AD setup)
 curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v2.0/authconfig/directories" \
 	-H "Authorization: Basic $TOKEN" \
@@ -86,6 +88,8 @@ else
 	echo "Failed to configure AD authentication."
 	exit 1
 fi
+
+sleep 5s
 
 # Configure Role Mappings
 curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_mappings" \

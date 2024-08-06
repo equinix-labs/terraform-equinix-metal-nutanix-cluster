@@ -100,14 +100,6 @@ You need to provide a new password in the TF vars file which will be set to the 
 
 ![Nutanix_Equinix_console.png](assets/Nutanix_Equinix_console.png)
 
-### Now, you can try out with different users on the Prism Element
-
-- By default, There are 2 users `Admin` and `equinix-user` already mapped on the prism with Cluster Admin and User Admin roles.
-- For more users, you can add a user/group to AD Server.
-  - RDP into the `ad-server` metal device/VM.
-  - Add more users and groups to AD.
-  - And Then add role_mappings for those users in Prism Element.
-
 ## To Login to the Prism GUI
 
 - SSH port forward session with the bastion host:
@@ -126,9 +118,46 @@ You need to provide a new password in the TF vars file which will be set to the 
 
 - Then open a browser and navigate to <https://localhost:9440> (the certificate will not match the domain)
 
-You can use the same username and password provided as TF Vars to the module as the default password needed to be changed.
+To login, you can use credentials
 
-## Next Steps, Setup the Prism Central instance
+- **Username** : The default username: `admin` or `Admin@equinixad.com` as the user from AD Server.
+- **Password** : Password is the value provided in TF Vars (`terraform.tfvars`) file with the key `new_prism_password`.
+
+### Now, you can try out with configured AD users on the Prism Element
+
+- By default, The user `Admin` already mapped on the prism with Cluster Admin and User Admin roles.
+
+To login to the prism ui, follow the steps as mentioned [here](./README.md#to-login-to-the-prism-gui).
+
+Make sure you add domain as well to the username of the prism ex: `admin@equinixad.com`
+
+### To support more users login
+
+For more users, you can add a user/group to AD Server.
+
+- RDP into the `ad-server` metal device/VM.
+- Add more users and groups to AD.
+
+```powershell
+New-ADUser user01`
+-Surname user01 `
+-GivenName user01 `
+-DisplayName "AD User01" `
+-EmailAddress "user01@equinixad.com" `
+-AccountPassword (ConvertTo-SecureString -AsPlainText "<password_here>" -Force) `
+-ChangePasswordAtLogon $true `
+-Enabled $true
+```
+
+Please refer [here](https://www.server-world.info/en/note?os=Windows_Server_2022&p=active_directory&f=4) for more details
+
+- And Then add role_mappings for those users in Prism Element. From Prism Web console > Settings > Role Mapping.
+
+Follow [this](https://portal.nutanix.com/page/documents/details?targetId=Nutanix-Security-Guide-v6_8:wc-security-role-permissions-wc-t.html) guide for detailed steps.
+
+## Next Steps, Setup the Prism Central instance (Optional)
+
+### To get more powerful capabilities of Nutanix, setup prism central.
 
 1. **Login Prism UI**
 

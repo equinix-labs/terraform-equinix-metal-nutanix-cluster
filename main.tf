@@ -154,6 +154,7 @@ resource "null_resource" "wait_for_firstboot" {
     host                = equinix_metal_device.nutanix[count.index].access_private_ipv4
     password            = "nutanix/4u"
     script_path         = "/root/firstboot-check-%RAND%.sh"
+    agent               = false
   }
 
   provisioner "remote-exec" {

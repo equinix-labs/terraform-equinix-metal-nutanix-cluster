@@ -7,7 +7,7 @@ output "ssh_private_key" {
 output "ssh_private_key_contents" {
   description = "The private key contents for the SSH keypair"
   value       = module.ssh.ssh_private_key_contents
-  sensitive   = false
+  sensitive   = true
 }
 
 output "ssh_key_id" {

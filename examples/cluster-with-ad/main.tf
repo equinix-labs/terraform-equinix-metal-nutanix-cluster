@@ -53,6 +53,34 @@ resource "equinix_metal_port" "ad_server_bond0" {
   vlan_ids = [local.vlan_id]
 }
 
+resource "null_resource" "change_default_password" {
+  depends_on = [
+    equinix_metal_device.ad_server
+  ]
+
+  connection {
+    host        = module.nutanix_cluster.bastion_public_ip
+    private_key = chomp(module.nutanix_cluster.ssh_private_key_contents)
+    type        = "ssh"
+    user        = "root"
+  }
+
+  provisioner "file" {
+    destination = "/root/change-default-password.sh"
+    content = templatefile("${path.module}/templates/change-default-password.sh.tmpl", {
+      PRISM_IP         = module.nutanix_cluster.cvim_ip_address
+      PRISM_PORT       = "9440"
+      PRISM_USERNAME   = "admin"
+      DEFAULT_PASSWORD = "Nutanix/4u"
+      NEW_PASSWORD     = var.new_prism_password
+    })
+  }
+
+  provisioner "remote-exec" {
+    inline = ["/bin/bash /root/change-default-password.sh"]
+  }
+}
+
 resource "null_resource" "bastion_ssh" {
   depends_on = [equinix_metal_device.ad_server]
 
@@ -66,15 +94,14 @@ resource "null_resource" "bastion_ssh" {
   provisioner "file" {
     destination = "/root/configure-ad.sh"
     content = templatefile("${path.module}/templates/configure-ad.sh.tmpl", {
-      PRISM_IP         = module.nutanix_cluster.cvim_ip_address
-      PRISM_PORT       = "9440"
-      PRISM_USERNAME   = "admin"
-      DEFAULT_PASSWORD = "Nutanix/4u"
-      NEW_PASSWORD     = var.new_prism_password
-      AD_DOMAIN        = var.ad_domain
-      AD_DOMAIN_IP     = equinix_metal_device.ad_server.access_public_ipv4
-      AD_USERNAME      = "Admin"
-      AD_PASSWORD      = var.ad_password
+      PRISM_IP       = module.nutanix_cluster.cvim_ip_address
+      PRISM_PORT     = "9440"
+      PRISM_USERNAME = "admin"
+      PASSWORD       = var.new_prism_password
+      AD_DOMAIN      = var.ad_domain
+      AD_DOMAIN_IP   = equinix_metal_device.ad_server.access_public_ipv4
+      AD_USERNAME    = "Admin"
+      AD_PASSWORD    = var.ad_password
     })
   }
 

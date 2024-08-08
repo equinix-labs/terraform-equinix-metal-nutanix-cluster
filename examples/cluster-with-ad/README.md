@@ -170,3 +170,69 @@ Follow [this](https://portal.nutanix.com/page/documents/details?targetId=Nutanix
    [Nutanix Prism Cluster on Equinix Metal](https://equinix-labs.github.io/nutanix-on-equinix-metal-workshop/parts/5-prism_central/#part-5-deploy-prism-central)
 
 **These steps will guide you through the configuration of VirtualIP, ISCSI IP, NTP Servers and deploying Prism Central Instance.**
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_equinix"></a> [equinix](#requirement\_equinix) | >= 1.30 |
+| <a name="requirement_null"></a> [null](#requirement\_null) | >= 3 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_equinix"></a> [equinix](#provider\_equinix) | >= 1.30 |
+| <a name="provider_null"></a> [null](#provider\_null) | >= 3 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_nutanix_cluster"></a> [nutanix\_cluster](#module\_nutanix\_cluster) | ../.. | n/a |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [equinix_metal_device.ad_server](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_device) | resource |
+| [equinix_metal_port.ad_server_bond0](https://registry.terraform.io/providers/equinix/equinix/latest/docs/resources/metal_port) | resource |
+| [null_resource.bastion_ssh](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.change_default_password](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [equinix_metal_vlan.nutanix](https://registry.terraform.io/providers/equinix/equinix/latest/docs/data-sources/metal_vlan) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_ad_password"></a> [ad\_password](#input\_ad\_password) | New Password to set on AD | `string` | n/a | yes |
+| <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
+| <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
+| <a name="input_new_prism_password"></a> [new\_prism\_password](#input\_new\_prism\_password) | New Password to set on Prism element and prism central | `string` | n/a | yes |
+| <a name="input_ad_domain"></a> [ad\_domain](#input\_ad\_domain) | Domain Name to set on Active Directory configuration | `string` | `"equinixad.com"` | no |
+| <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false. | `bool` | `true` | no |
+| <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
+| <a name="input_metal_ad_server_plan"></a> [metal\_ad\_server\_plan](#input\_metal\_ad\_server\_plan) | Which plan to use for the Active Directory Windows Server | `string` | `"c3.small.x86"` | no |
+| <a name="input_metal_bastion_plan"></a> [metal\_bastion\_plan](#input\_metal\_bastion\_plan) | Which plan to use for the bastion host. | `string` | `"m3.small.x86"` | no |
+| <a name="input_metal_nutanix_os"></a> [metal\_nutanix\_os](#input\_metal\_nutanix\_os) | Which OS to use for the Nutanix nodes. | `string` | `"nutanix_lts_6_5"` | no |
+| <a name="input_metal_nutanix_plan"></a> [metal\_nutanix\_plan](#input\_metal\_nutanix\_plan) | Which plan to use for the Nutanix nodes (must be Nutanix compatible, see https://deploy.equinix.com/developers/os-compatibility/) | `string` | `"m3.large.x86"` | no |
+| <a name="input_metal_organization_id"></a> [metal\_organization\_id](#input\_metal\_organization\_id) | The ID of the Metal organization in which to create the project if `create_project` is true. | `string` | `null` | no |
+| <a name="input_metal_project_id"></a> [metal\_project\_id](#input\_metal\_project\_id) | The ID of the Metal project in which to deploy to cluster. If `create_project` is false and<br>  you do not specify a project name, the project will be looked up by ID. One (and only one) of<br>  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set. | `string` | `""` | no |
+| <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster. If `create_project` is false and<br>  you do not specify a project ID, the project will be looked up by name. One (and only one) of<br>  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.<br>  Required if `create_project` is true. | `string` | `""` | no |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
+| <a name="input_metal_vlan_id"></a> [metal\_vlan\_id](#input\_metal\_vlan\_id) | ID of the VLAN you wish to use. | `number` | `null` | no |
+| <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create. | `number` | `1` | no |
+| <a name="input_nutanix_reservation_ids"></a> [nutanix\_reservation\_ids](#input\_nutanix\_reservation\_ids) | Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must<br>  be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`. If<br>  you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`. | `list(string)` | `[]` | no |
+| <a name="input_skip_cluster_creation"></a> [skip\_cluster\_creation](#input\_skip\_cluster\_creation) | Skip the creation of the Nutanix cluster. | `bool` | `false` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_ad_server_ip"></a> [ad\_server\_ip](#output\_ad\_server\_ip) | IP Address of the Windows Active Directory Server initialised by this module |
+| <a name="output_bastion_public_ip"></a> [bastion\_public\_ip](#output\_bastion\_public\_ip) | The public IP address of the bastion host |
+| <a name="output_prism_central_ip_address"></a> [prism\_central\_ip\_address](#output\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
+| <a name="output_ssh_forward_command"></a> [ssh\_forward\_command](#output\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
+<!-- END_TF_DOCS -->

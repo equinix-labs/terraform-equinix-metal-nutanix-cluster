@@ -257,11 +257,15 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="output_cluster_gateway"></a> [cluster\_gateway](#output\_cluster\_gateway) | The Nutanix cluster gateway IP |
 | <a name="output_cvim_ip_address"></a> [cvim\_ip\_address](#output\_cvim\_ip\_address) | The IP address of the CVM |
 | <a name="output_iscsi_data_services_ip"></a> [iscsi\_data\_services\_ip](#output\_iscsi\_data\_services\_ip) | Reserved IP for cluster ISCSI Data Services IP |
+| <a name="output_nutanix_metal_project_id"></a> [nutanix\_metal\_project\_id](#output\_nutanix\_metal\_project\_id) | Project Id for the nutanix cluster |
+| <a name="output_nutanix_metal_vlan_id"></a> [nutanix\_metal\_vlan\_id](#output\_nutanix\_metal\_vlan\_id) | VLan Id for the nutanix cluster |
 | <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |
 | <a name="output_prism_central_ip_address"></a> [prism\_central\_ip\_address](#output\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
 | <a name="output_ssh_forward_command"></a> [ssh\_forward\_command](#output\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
+| <a name="output_ssh_key_id"></a> [ssh\_key\_id](#output\_ssh\_key\_id) | The ssh key Id for the SSH keypair |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
-| <a name="output_virtual_ip_address"></a> [virtual\_ip\_address](#output\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
+| <a name="output_ssh_private_key_contents"></a> [ssh\_private\_key\_contents](#output\_ssh\_private\_key\_contents) | The private key contents for the SSH keypair |
+| <a name="output_virtual_ip_address"></a> [virtual\_ip\_address](#output\_virtual\_ip\_address) | Reserved IP for cluster virtual IP |
 <!-- END_TF_DOCS -->
 
 ## Contributing

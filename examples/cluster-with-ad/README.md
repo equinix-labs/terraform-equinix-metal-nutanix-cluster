@@ -157,7 +157,7 @@ Follow [this](https://portal.nutanix.com/page/documents/details?targetId=Nutanix
 
 ## Next Steps, Setup the Prism Central instance (Optional)
 
-### To get more powerful capabilities of Nutanix, setup prism central.
+### To get more powerful capabilities of Nutanix, setup prism central
 
 1. **Login Prism UI**
 

@@ -24,7 +24,6 @@ Import-Module ADDSDeployment
 
 Set-LocalUser -Name "Administrator" -Password (ConvertTo-SecureString "${ad_password}" -AsPlainText -Force)
 Set-LocalUser -Name "Admin" -Password (ConvertTo-SecureString "${ad_password}" -AsPlainText -Force)
-Set-LocalUser -Name "${user}" -Password (ConvertTo-SecureString "${ad_password}" -AsPlainText -Force)
 
 # Install Forest
 ```powershell

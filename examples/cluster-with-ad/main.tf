@@ -41,7 +41,6 @@ resource "equinix_metal_device" "ad_server" {
   user_data = templatefile("${path.module}/templates/ad-userdata.tmpl", {
     vxlan       = local.vxlan
     domain      = var.ad_domain
-    user        = var.ad_non_admin_user
     ad_password = var.ad_password
   })
 }

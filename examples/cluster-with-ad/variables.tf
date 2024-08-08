@@ -22,12 +22,6 @@ variable "ad_domain" {
   description = "Domain Name to set on Active Directory configuration"
 }
 
-variable "ad_non_admin_user" {
-  type        = string
-  default     = "equinix-user"
-  description = "Non Admin User Name for Active Directory configuration"
-}
-
 variable "metal_vlan_description" {
   type        = string
   default     = "ntnx-demo"

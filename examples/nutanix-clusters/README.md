@@ -246,5 +246,4 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 | <a name="output_nutanix_cluster2_ssh_forward_command"></a> [nutanix\_cluster2\_ssh\_forward\_command](#output\_nutanix\_cluster2\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
 | <a name="output_nutanix_cluster2_ssh_private_key"></a> [nutanix\_cluster2\_ssh\_private\_key](#output\_nutanix\_cluster2\_ssh\_private\_key) | The SSH keypair's private key for cluster1 |
 | <a name="output_nutanix_cluster2_virtual_ip_address"></a> [nutanix\_cluster2\_virtual\_ip\_address](#output\_nutanix\_cluster2\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
-
 <!-- END_TF_DOCS -->

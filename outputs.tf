@@ -4,6 +4,18 @@ output "ssh_private_key" {
   sensitive   = false
 }
 
+output "ssh_private_key_contents" {
+  description = "The private key contents for the SSH keypair"
+  value       = module.ssh.ssh_private_key_contents
+  sensitive   = true
+}
+
+output "ssh_key_id" {
+  description = "The ssh key Id for the SSH keypair"
+  value       = module.ssh.equinix_metal_ssh_key_id
+  sensitive   = false
+}
+
 output "bastion_public_ip" {
   description = "The public IP address of the bastion host"
   value       = equinix_metal_device.bastion.access_public_ipv4
@@ -25,7 +37,7 @@ output "cvim_ip_address" {
 }
 
 output "virtual_ip_address" {
-  description = "Reserved IP for cluster virtal IP"
+  description = "Reserved IP for cluster virtual IP"
   value       = cidrhost(var.cluster_subnet, -2)
 }
 
@@ -34,10 +46,19 @@ output "iscsi_data_services_ip" {
   value       = cidrhost(var.cluster_subnet, -3)
 }
 
-
 output "prism_central_ip_address" {
   description = "Reserved IP for Prism Central VM"
   value       = cidrhost(var.cluster_subnet, -4)
+}
+
+output "nutanix_metal_project_id" {
+  description = "Project Id for the nutanix cluster"
+  value       = local.project_id
+}
+
+output "nutanix_metal_vlan_id" {
+  description = "VLan Id for the nutanix cluster"
+  value       = local.vlan_id
 }
 
 output "cluster_gateway" {

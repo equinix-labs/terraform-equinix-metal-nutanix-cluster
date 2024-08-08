@@ -48,4 +48,5 @@ No modules.
 | <a name="output_equinix_metal_ssh_key_id"></a> [equinix\_metal\_ssh\_key\_id](#output\_equinix\_metal\_ssh\_key\_id) | public key for bastion host |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | private key file for bastion host |
 | <a name="output_ssh_private_key_contents"></a> [ssh\_private\_key\_contents](#output\_ssh\_private\_key\_contents) | private key contents for bastion host |
+
 <!-- END_TF_DOCS -->

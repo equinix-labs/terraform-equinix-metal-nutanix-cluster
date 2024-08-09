@@ -59,17 +59,11 @@ variable "metal_organization_id" {
   default     = null
   description = "The ID of the Metal organization in which to create the project if `create_project` is true."
 }
-# tflint-ignore: terraform_unused_declarations
+
 variable "metal_subnet" {
   type        = string
   default     = "192.168.96.0/21"
-  description = "Nutanix cluster subnet."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "metal_vlan_description" {
-  type        = string
-  default     = "ntnx-demo"
-  description = "Description to add to created VLAN."
+  description = "IP pool for all Nutanix Clusters in the example. One bit will be appended to the end and divided between example clusters. (192.168.96.0/21 will result in clusters with ranges 192.168.96.0/22 and 192.168.100.0/22)"
 }
 
 variable "create_vrf" {
@@ -82,34 +76,4 @@ variable "vrf_id" {
   type        = string
   default     = null
   description = "ID of the VRF you wish to use."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "metal_nutanix_plan" {
-  type        = string
-  default     = "c3.small.x86"
-  description = "The plan to use for the Nutanix nodes."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "skip_cluster_creation" {
-  type        = bool
-  default     = false
-  description = "Skip the creation of the Nutanix cluster."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "metal_bastion_plan" {
-  type        = string
-  default     = "t3.small.x86"
-  description = "The plan to use for the bastion host."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "metal_nutanix_os" {
-  type        = string
-  default     = "ubuntu_20_04"
-  description = "The operating system to use for the Nutanix nodes."
-}
-# tflint-ignore: terraform_unused_declarations
-variable "cluster_subnet" {
-  type        = string
-  default     = "192.168.100.0/22"
-  description = "nutanix cluster subnet"
 }

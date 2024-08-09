@@ -1,6 +1,6 @@
 # Nutanix Cluster on Equinix Metal
 
-This Terraform module will deploy a proof-of-concept demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access is managed by an Ubuntu 22.04 bastion/gateway node.
+This Terraform module will deploy a proof-of-concept demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access are managed by an Ubuntu 22.04 bastion/gateway node.
 
 ## Acronyms and Terms
 
@@ -22,7 +22,8 @@ This POC Terraform module is inspired by the [Deploying a multi-node Nutanix clu
 
 By deploying this POC Terraform module, you will get an automated and opinionated minimal Nutanix Cluster that will help provide a quick introduction to the platform's capabilities.
 
-This project is NOT intended to demonstrate best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery.
+> **⚠️ Warning:** 
+> This project is NOT intended to demonstrate best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery. Working with your account representative to run this demo with workload-optimized servers is HIGHLY recommended.
 
 To accommodate deployment requirements, this module will create:
 
@@ -32,7 +33,7 @@ To accommodate deployment requirements, this module will create:
 
 - 3x [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) nodes running [Nutanix LTS 6.5](https://deploy.equinix.com/developers/docs/metal/operating-systems/licensed/#nutanix-cloud-platform-on-equinix-metal) in [layer2-bonded networking mode](https://deploy.equinix.com/developers/docs/metal/layer2-networking/layer2-bonded-mode/)
 
-  [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) [hardware reservations](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) are preferred and required for [capacity](https://deploy.equinix.com/developers/docs/metal/locations/capacity/) and to ensure hardware compatibility with Nutanix. On-demand instances will be deployed by default, see ["On-Demand Instances"](#on-demand-instances) notes below for more details.
+> **ℹ️ Important:** [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) [hardware reservations](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) are required for [capacity](https://deploy.equinix.com/developers/docs/metal/locations/capacity/) and to ensure hardware compatibility with Nutanix. This project will deploy On-demand instances by default, which requires authorized access to a special `nutanix_lts_6_5_poc` OS image. See ["On-Demand Instances"](#on-demand-instances) notes below for more details.
 
 - 1x [VLAN](https://deploy.equinix.com/developers/docs/metal/layer2-networking/vlans/) and [Metal Gateway](https://deploy.equinix.com/developers/docs/metal/layer2-networking/metal-gateway/) with [VRF](https://deploy.equinix.com/developers/docs/metal/layer2-networking/vrf/)
 
@@ -140,9 +141,13 @@ ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_
 
 This POC allocates a [m3.small.x86](https://deploy.equinix.com/product/servers/m3-small/) node for the Bastion host by default, you can change this to another instance type of your choosing by setting the `metal_bastion_plan` variable.
 
-This POC allocates [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) instances for the Nutanix nodes. Not all on-demand m3.large.x86 nodes will work. At the time of writing, we recommend the SL or AM Metros for deployment. If a Nutanix node fails to provision, please try to `terraform apply` again. A node that fails to provision with the Nutanix AOS will be automatically removed from your project. Terraform will subsequently attempt to replace those servers.
+This POC allocates [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) instances for the Nutanix nodes. Please note that the `nutanix_lts_6_5` and `nutanix_lts_6_5_poc` OS images are only available for certified hardware plans, not all on-demand m3.large.x86 nodes will work, and it is HIGHLY recommended to work with your account representative for access to workload-optimized servers. 
 
-Production deployments should use qualified [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) instances for Nutanix nodes. Create a [hardware reservation](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) or [contact Equinix Metal](https://deploy.equinix.com/support/) to obtain validated [Nutanix compatible servers](https://deploy.equinix.com/developers/os-compatibility/). You can also [convert a successfully deployed on-demand instance to a hardware reservation](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/#converting-on-demand-to-a-hardware-reservation). Hardware Reservations will ensure that you get the correct hardware for your Nutanix deployments.
+If you have preapproved access to the `nutanix_lts_6_5_poc` OS images, at the time of writing, we recommend the SL (Seoul), AM (Amsterdam), and TR (Toronto) Metros for deployment. 
+
+If a Nutanix node fails to provision, please try to `terraform apply` again. A node that fails to provision with the Nutanix AOS will be automatically removed from your project. Terraform will subsequently attempt to replace those servers.
+
+Production deployments should use qualified [Workload Optimized](https://deploy.equinix.com/developers/docs/metal/hardware/workload-optimized-plans/) instances for Nutanix nodes. Create a [hardware reservation](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/) or [contact Equinix Metal](https://deploy.equinix.com/support/) to obtain validated [Nutanix compatible servers](https://deploy.equinix.com/developers/os-compatibility/). You can also [convert a successfully deployed on-demand instance to a hardware reservation](https://deploy.equinix.com/developers/docs/metal/deploy/reserved/#converting-on-demand-to-a-hardware-reservation). Hardware Reservations will ensure that you get the correct hardware for your Nutanix deployments. Remember that this project is for initial proof-of-concept builds only, not production deployments.
 
 ### SSH failures while running on macOS
 

@@ -169,7 +169,7 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
     ```sh
     ssh -L 9440:$nutanix_cluster1_cvim_ip_address:9440 \
-        -L 19440:$nutanix_cluster1_cvim_ip_address:9440 \
+        -L 19440:$nutanix_cluster1_prism_central_ip_address:9440 \
         -i $nutanix_cluster1_ssh_private_key \
         -J root@$nutanix_cluster1_bastion_public_ip \
         admin@$nutanix_cluster1_cvim_ip_address

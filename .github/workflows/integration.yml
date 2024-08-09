@@ -1,0 +1,106 @@
+name: 'integration'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'LICENSE'
+      - '**.md'
+
+jobs:
+  integrate:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      TF_IN_AUTOMATION: 1
+      TF_VERSION: 1.7.5
+      TF_VAR_create_project: false
+      TF_VAR_metal_bastion_plan: "m3.small.x86"
+      TF_VAR_metal_nutanix_os: "nutanix_lts_6_5_poc"
+      TF_VAR_metal_nutanix_plan: "m3.large.x86"
+      TF_VAR_nutanix_node_count: 1
+      TF_VAR_skip_cluster_creation: false
+      TF_VAR_cluster_subnet: "192.168.96.0/22"
+      TF_VAR_cluster_gateway: "192.168.96.1"
+      TF_VAR_metal_metro: "sl"
+      TF_VAR_metal_auth_token: ${{ secrets.METAL_AUTH_TOKEN }}
+      TF_VAR_metal_project_id: ${{ secrets.METAL_PROJECT_ID }}
+      TF_VAR_metal_organization_id: ${{ secrets.METAL_ORGANIZATION_ID }}
+      BASTION_HOST_PASSWORD: ${{ secrets.BASTION_HOST_PASSWORD }}
+    steps:
+    - name: Checkout from GitHub
+      uses: actions/checkout@v4
+
+    - name: Add SHORT_SHA env property with commit short SHA
+      run: echo "SHORT_SHA=`echo ${GITHUB_SHA} | cut -c1-8`" >> $GITHUB_ENV
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Initialize Terraform, Modules, and Plugins
+      id: init
+      run: terraform init -input=false
+
+    - name: Set up SSH
+      run: |
+        echo "${{ secrets.METAL_SSH_PRIVATE_KEY }}" | base64 --decode > /tmp/private_ssh_key
+        chmod 600 /tmp/private_ssh_key
+        eval "$(ssh-agent -a $SSH_AUTH_SOCK)"
+        ssh-add /tmp/private_ssh_key
+        ssh-keyscan -H equinix_metal_device.bastion.access_public_ipv4 >> ~/.ssh/known_hosts
+        ssh-keyscan -H equinix_metal_device.nutanix[count.index].access_private_ipv4 >> ~/.ssh/known_hosts
+
+    - name: Configure SSHD Settings
+      run: |
+        sudo bash -c "
+          echo 'TCPKeepAlive yes' >> /etc/ssh/sshd_config
+          echo 'AllowTcpForwarding yes' >> /etc/ssh/sshd_config
+          echo 'PermitOpen any' >> /etc/ssh/sshd_config
+          systemctl reload sshd.service
+        "
+    - name: Enable Debug Logging
+      run: |
+        echo "RUNNER_DEBUG=true" >> $GITHUB_ENV
+        echo "ACTIONS_RUNNER_DEBUG=true" >> $GITHUB_ENV
+
+    - name: Terraform Plan
+      id: plan
+      timeout-minutes: 120
+      run: terraform plan -out=tfplan -input=false
+
+    - name: Terraform Apply
+      id: apply
+      timeout-minutes: 120
+      run: terraform apply -input=false tfplan
+
+    - name: Terraform Destroy with Retry
+      id: destroy
+      if: ${{ always() }}
+      run: |
+        attempts=0
+        max_attempts=3
+        delay=60  # delay in seconds
+        until [ $attempts -ge $max_attempts ]
+        do
+          terraform destroy -input=false -auto-approve && break
+          attempts=$((attempts+1))
+          echo "Terraform destroy failed. Retrying in $delay seconds..."
+          sleep $delay
+        done
+        if [ $attempts -ge $max_attempts ]; then
+          echo "Terraform destroy failed after $max_attempts attempts."
+          exit 1
+        fi
+
+    - name: Project Delete
+      if: ${{ always() }}
+      uses: equinix-labs/metal-sweeper-action@v0.6.1
+      with:
+        authToken: ${{ secrets.METAL_AUTH_TOKEN }}
+        projectID: ${{ secrets.METAL_PROJECT_ID }}

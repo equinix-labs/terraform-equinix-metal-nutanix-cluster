@@ -25,8 +25,10 @@ resource "terraform_data" "input_validation" {
 }
 
 resource "equinix_metal_project" "nutanix" {
-  count           = var.create_project ? 1 : 0
-  name            = var.metal_project_name
+  count = var.create_project ? 1 : 0
+  name  = var.metal_project_name
+  # TODO: See https://github.com/equinix/terraform-provider-equinix/issues/732
+  # description = "Nutanix cluster proof-of-concept project. See https://deploy.equinix.com/labs/terraform-equinix-metal-nutanix-cluster/ for more information."
   organization_id = var.metal_organization_id
 }
 
@@ -55,9 +57,10 @@ data "equinix_metal_vlan" "nutanix" {
 }
 
 resource "equinix_metal_device" "bastion" {
-  project_id = local.project_id
-  hostname   = "bastion"
-
+  project_id  = local.project_id
+  hostname    = "${var.cluster_name}-bastion"
+  description = "${var.cluster_name} bastion to access Nutanix nodes and VMs on ${var.cluster_subnet}. Provides NTP, DHCP, and NAT for these nodes and VMs. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
+  tags        = [var.cluster_name]
   user_data = templatefile("${path.module}/templates/bastion-userdata.tmpl", {
     metal_vlan_id   = local.vxlan,
     address         = cidrhost(var.cluster_subnet, 2),
@@ -79,10 +82,11 @@ resource "equinix_metal_device" "bastion" {
 }
 
 resource "equinix_metal_port" "bastion_bond0" {
-  port_id  = [for p in equinix_metal_device.bastion.ports : p.id if p.name == "bond0"][0]
-  layer2   = false
-  bonded   = true
-  vlan_ids = [local.vlan_id]
+  port_id         = [for p in equinix_metal_device.bastion.ports : p.id if p.name == "bond0"][0]
+  layer2          = false
+  bonded          = true
+  vlan_ids        = [local.vlan_id]
+  reset_on_delete = true
 }
 
 # This generates a random suffix to avoid VRF name
@@ -95,8 +99,8 @@ resource "random_string" "vrf_name_suffix" {
 
 resource "equinix_metal_vrf" "nutanix" {
   count       = var.create_vrf ? 1 : 0
-  description = "VRF with ASN 65000 and a pool of address space that includes 192.168.100.0/25"
-  name        = "nutanix-vrf-${random_string.vrf_name_suffix.result}"
+  description = "VRF with ASN 65000 and a pool of address space that includes ${var.cluster_subnet}. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
+  name        = "${var.cluster_name}-vrf-${random_string.vrf_name_suffix.result}"
   metro       = var.metal_metro
   local_asn   = "65000"
   ip_ranges   = [var.cluster_subnet]
@@ -109,7 +113,8 @@ data "equinix_metal_vrf" "nutanix" {
 }
 
 resource "equinix_metal_reserved_ip_block" "nutanix" {
-  description = "Reserved IP block (${var.cluster_subnet}) taken from on of the ranges in the VRF's pool of address space."
+  description = "${var.cluster_name} VRF Reserved IP block (${var.cluster_subnet}). Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
+  tags        = [var.cluster_name]
   project_id  = local.project_id
   metro       = var.metal_metro
   type        = "vrf"
@@ -127,7 +132,8 @@ resource "equinix_metal_gateway" "gateway" {
 resource "equinix_metal_device" "nutanix" {
   count            = var.nutanix_node_count
   project_id       = local.project_id
-  hostname         = "nutanix-devrel-test-${count.index}"
+  hostname         = "${var.cluster_name}-node-${count.index + 1}"
+  description      = "${var.cluster_name} node ${count.index + 1}/${var.nutanix_node_count}. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
   operating_system = var.metal_nutanix_os
   plan             = var.metal_nutanix_plan
   metro            = var.metal_metro
@@ -163,13 +169,13 @@ resource "null_resource" "wait_for_firstboot" {
 }
 
 resource "equinix_metal_port" "nutanix" {
-  depends_on = [null_resource.wait_for_firstboot]
-  count      = var.nutanix_node_count
-  port_id    = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
-  layer2     = true
-  bonded     = true
-  vlan_ids   = [local.vlan_id]
-
+  depends_on      = [null_resource.wait_for_firstboot]
+  count           = var.nutanix_node_count
+  port_id         = [for p in equinix_metal_device.nutanix[count.index].ports : p.id if p.name == "bond0"][0]
+  layer2          = true
+  bonded          = true
+  vlan_ids        = [local.vlan_id]
+  reset_on_delete = true
 }
 
 resource "null_resource" "reboot_nutanix" {

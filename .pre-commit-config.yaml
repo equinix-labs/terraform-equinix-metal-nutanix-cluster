@@ -9,6 +9,8 @@ repos:
           - "--args=-recursive"
       - id: terraform_validate
         exclude: "^[^/]+$"
+        args:
+          - --hook-config=--parallelism-limit=1
       - id: terraform_tflint
         args:
           - "--args=--config=__GIT_WORKING_DIR__/.tflint.hcl"

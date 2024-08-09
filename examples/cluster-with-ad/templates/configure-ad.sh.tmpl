@@ -1,0 +1,50 @@
+#!/bin/sh
+set -ev
+
+TOKEN=$(printf '%s:%s' "${PRISM_USERNAME}" "${PASSWORD}" | base64)
+
+sleep 60s
+
+# Configure AD authentication
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v2.0/authconfig/directories" \
+	-H "Authorization: Basic $TOKEN" \
+	-H 'Content-Type: application/json' \
+	--show-error --data-binary '{
+                                        "connection_type": "LDAP",
+                                        "directory_type": "ACTIVE_DIRECTORY",
+                                        "directory_url": "ldap://${AD_DOMAIN_IP}",
+                                        "domain": "${AD_DOMAIN}",
+                                        "name": "equinix-ad",
+                                        "service_account_username": "${AD_USERNAME}",
+                                        "service_account_password": "${AD_PASSWORD}",
+                                        "group_search_type": "NON_RECURSIVE"
+                                      }'
+
+if [ "$?" -eq 0 ]; then
+	echo "AD authentication configured successfully."
+else
+	echo "Failed to configure AD authentication."
+	exit 1
+fi
+
+sleep 5s
+
+# Configure Role Mappings
+curl -s -k -X POST "https://${PRISM_IP}:${PRISM_PORT}/PrismGateway/services/rest/v1/authconfig/directories/equinix-ad/role_mappings" \
+	-H "Authorization: Basic $TOKEN" \
+	-H 'Content-Type: application/json' \
+	--show-error --data-binary '{
+                                        "directoryName": "equinix-ad",
+                                        "entityType": "USER",
+                                        "entityValues": [
+                                          "Admin"
+                                        ],
+                                        "role": "ROLE_CLUSTER_ADMIN"
+                                      }'
+
+if [ "$?" -eq 0 ]; then
+	echo "Role mapping to AD configured successfully."
+else
+	echo "Failed to configure Role mapping to AD."
+	exit 1
+fi

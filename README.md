@@ -232,6 +232,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_metal_auth_token"></a> [metal\_auth\_token](#input\_metal\_auth\_token) | Equinix Metal API token. | `string` | n/a | yes |
 | <a name="input_metal_metro"></a> [metal\_metro](#input\_metal\_metro) | The metro to create the cluster in. | `string` | n/a | yes |
 | <a name="input_cluster_gateway"></a> [cluster\_gateway](#input\_cluster\_gateway) | The cluster gateway IP address | `string` | `""` | no |
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | The name of the Nutanix cluster, used as a prefix for resources. | `string` | `"nutanix"` | no |
 | <a name="input_cluster_subnet"></a> [cluster\_subnet](#input\_cluster\_subnet) | nutanix cluster subnet | `string` | `"192.168.100.0/22"` | no |
 | <a name="input_create_project"></a> [create\_project](#input\_create\_project) | (Optional) to use an existing project matching `metal_project_name`, set this to false. | `bool` | `true` | no |
 | <a name="input_create_vlan"></a> [create\_vlan](#input\_create\_vlan) | Whether to create a new VLAN for this project. | `bool` | `true` | no |
@@ -242,7 +243,7 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="input_metal_organization_id"></a> [metal\_organization\_id](#input\_metal\_organization\_id) | The ID of the Metal organization in which to create the project if `create_project` is true. | `string` | `null` | no |
 | <a name="input_metal_project_id"></a> [metal\_project\_id](#input\_metal\_project\_id) | The ID of the Metal project in which to deploy to cluster. If `create_project` is false and<br>  you do not specify a project name, the project will be looked up by ID. One (and only one) of<br>  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set. | `string` | `""` | no |
 | <a name="input_metal_project_name"></a> [metal\_project\_name](#input\_metal\_project\_name) | The name of the Metal project in which to deploy the cluster. If `create_project` is false and<br>  you do not specify a project ID, the project will be looked up by name. One (and only one) of<br>  `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.<br>  Required if `create_project` is true. | `string` | `""` | no |
-| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo"` | no |
+| <a name="input_metal_vlan_description"></a> [metal\_vlan\_description](#input\_metal\_vlan\_description) | Description to add to created VLAN. | `string` | `"ntnx-demo. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."` | no |
 | <a name="input_metal_vlan_id"></a> [metal\_vlan\_id](#input\_metal\_vlan\_id) | ID of the VLAN you wish to use. | `number` | `null` | no |
 | <a name="input_nutanix_node_count"></a> [nutanix\_node\_count](#input\_nutanix\_node\_count) | The number of Nutanix nodes to create. | `number` | `3` | no |
 | <a name="input_nutanix_reservation_ids"></a> [nutanix\_reservation\_ids](#input\_nutanix\_reservation\_ids) | Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must<br>  be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`. If<br>  you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`. | `list(string)` | `[]` | no |
@@ -257,11 +258,15 @@ To view examples for how you can leverage this module, please see the [examples]
 | <a name="output_cluster_gateway"></a> [cluster\_gateway](#output\_cluster\_gateway) | The Nutanix cluster gateway IP |
 | <a name="output_cvim_ip_address"></a> [cvim\_ip\_address](#output\_cvim\_ip\_address) | The IP address of the CVM |
 | <a name="output_iscsi_data_services_ip"></a> [iscsi\_data\_services\_ip](#output\_iscsi\_data\_services\_ip) | Reserved IP for cluster ISCSI Data Services IP |
+| <a name="output_nutanix_metal_project_id"></a> [nutanix\_metal\_project\_id](#output\_nutanix\_metal\_project\_id) | Project Id for the nutanix cluster |
+| <a name="output_nutanix_metal_vlan_id"></a> [nutanix\_metal\_vlan\_id](#output\_nutanix\_metal\_vlan\_id) | VLan Id for the nutanix cluster |
 | <a name="output_nutanix_sos_hostname"></a> [nutanix\_sos\_hostname](#output\_nutanix\_sos\_hostname) | The SOS address to the nutanix machine. |
 | <a name="output_prism_central_ip_address"></a> [prism\_central\_ip\_address](#output\_prism\_central\_ip\_address) | Reserved IP for Prism Central VM |
 | <a name="output_ssh_forward_command"></a> [ssh\_forward\_command](#output\_ssh\_forward\_command) | SSH port forward command to use to connect to the Prism GUI |
+| <a name="output_ssh_key_id"></a> [ssh\_key\_id](#output\_ssh\_key\_id) | The ssh key Id for the SSH keypair |
 | <a name="output_ssh_private_key"></a> [ssh\_private\_key](#output\_ssh\_private\_key) | The private key for the SSH keypair |
-| <a name="output_virtual_ip_address"></a> [virtual\_ip\_address](#output\_virtual\_ip\_address) | Reserved IP for cluster virtal IP |
+| <a name="output_ssh_private_key_contents"></a> [ssh\_private\_key\_contents](#output\_ssh\_private\_key\_contents) | The private key contents for the SSH keypair |
+| <a name="output_virtual_ip_address"></a> [virtual\_ip\_address](#output\_virtual\_ip\_address) | Reserved IP for cluster virtual IP |
 <!-- END_TF_DOCS -->
 
 ## Contributing

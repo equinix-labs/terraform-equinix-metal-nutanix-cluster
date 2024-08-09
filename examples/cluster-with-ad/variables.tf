@@ -4,9 +4,27 @@ variable "metal_auth_token" {
   description = "Equinix Metal API token."
 }
 
+variable "new_prism_password" {
+  type        = string
+  sensitive   = true
+  description = "New Password to set on Prism element and prism central"
+}
+
+variable "ad_password" {
+  type        = string
+  sensitive   = true
+  description = "New Password to set on AD"
+}
+
+variable "ad_domain" {
+  type        = string
+  default     = "equinixad.com"
+  description = "Domain Name to set on Active Directory configuration"
+}
+
 variable "metal_vlan_description" {
   type        = string
-  default     = "ntnx-demo. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
+  default     = "ntnx-demo"
   description = "Description to add to created VLAN."
 }
 
@@ -29,18 +47,6 @@ variable "metal_project_id" {
   you do not specify a project name, the project will be looked up by ID. One (and only one) of
   `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.
   EOT
-}
-
-variable "cluster_name" {
-  type        = string
-  default     = "nutanix"
-  description = "The name of the Nutanix cluster, used as a prefix for resources."
-}
-
-variable "cluster_subnet" {
-  type        = string
-  default     = "192.168.100.0/22"
-  description = "nutanix cluster subnet"
 }
 
 variable "metal_organization_id" {
@@ -89,9 +95,15 @@ variable "metal_nutanix_plan" {
   description = "Which plan to use for the Nutanix nodes (must be Nutanix compatible, see https://deploy.equinix.com/developers/os-compatibility/)"
 }
 
+variable "metal_ad_server_plan" {
+  type        = string
+  default     = "c3.small.x86"
+  description = "Which plan to use for the Active Directory Windows Server"
+}
+
 variable "nutanix_node_count" {
   type        = number
-  default     = 3
+  default     = 1
   description = "The number of Nutanix nodes to create."
 }
 
@@ -109,22 +121,4 @@ variable "nutanix_reservation_ids" {
   be the same as `nutanix_node_count`.  Each item can be a reservation UUID or `next-available`. If
   you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
   EOT
-}
-
-variable "create_vrf" {
-  type        = bool
-  default     = true
-  description = "Whether to create a new VRF for this project."
-}
-
-variable "vrf_id" {
-  type        = string
-  default     = null
-  description = "ID of the VRF you wish to use."
-}
-
-variable "cluster_gateway" {
-  description = "The cluster gateway IP address"
-  type        = string
-  default     = ""
 }

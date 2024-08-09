@@ -135,7 +135,9 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
         -i $nutanix_cluster1_ssh_private_key \
         root@$nutanix_cluster1_bastion_public_ip
     ```
+
     OR
+
     ```sh
     $(terraform output -raw nutanix_cluster1_ssh_forward_command)
     ```
@@ -151,7 +153,9 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
         -i $nutanix_cluster2_ssh_private_key \
         root@$nutanix_cluster2_bastion_public_ip
     ```
+
     OR
+
     ```sh
     $(terraform output -raw nutanix_cluster2_ssh_forward_command)
     ```

@@ -6,7 +6,7 @@ variable "metal_auth_token" {
 
 variable "metal_vlan_description" {
   type        = string
-  default     = "ntnx-demo"
+  default     = "ntnx-demo. Deployed with Terraform module terraform-equinix-metal-nutanix-cluster."
   description = "Description to add to created VLAN."
 }
 
@@ -29,6 +29,12 @@ variable "metal_project_id" {
   you do not specify a project name, the project will be looked up by ID. One (and only one) of
   `metal_project_name` or `metal_project_id` is required or `metal_project_id` must be set.
   EOT
+}
+
+variable "cluster_name" {
+  type        = string
+  default     = "nutanix"
+  description = "The name of the Nutanix cluster, used as a prefix for resources."
 }
 
 variable "cluster_subnet" {

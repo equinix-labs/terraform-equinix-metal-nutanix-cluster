@@ -72,7 +72,7 @@ data "equinix_metal_vrf" "nutanix" {
 }
 
 module "nutanix_cluster1" {
-  source = "../.."
+  source                 = "../.."
   cluster_name           = "nutanix-a"
   metal_vlan_description = "nutanix-a"
   metal_nutanix_os       = "nutanix_lts_6_5"
@@ -89,7 +89,7 @@ module "nutanix_cluster1" {
 }
 
 module "nutanix_cluster2" {
-  source = "../.."
+  source                 = "../.."
   cluster_name           = "nutanix-b"
   metal_vlan_description = "nutanix-b"
   metal_nutanix_os       = "nutanix_lts_6_5"

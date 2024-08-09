@@ -1,6 +1,6 @@
 # Nutanix Cluster on Equinix Metal
 
-This Terraform module will deploy a proof-of-concept demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access is managed by an Ubuntu 22.04 bastion/gateway node.
+This Terraform module will deploy a proof-of-concept demonstrative Nutanix Cluster in Layer 2 isolation on Equinix Metal. DNS, DHCP, and Cluster internet access are managed by an Ubuntu 22.04 bastion/gateway node.
 
 ## Acronyms and Terms
 
@@ -23,7 +23,7 @@ This POC Terraform module is inspired by the [Deploying a multi-node Nutanix clu
 By deploying this POC Terraform module, you will get an automated and opinionated minimal Nutanix Cluster that will help provide a quick introduction to the platform's capabilities.
 
 > **⚠️ Warning:** 
-> This project is NOT intended to demonstrate best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery.
+> This project is NOT intended to demonstrate best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery. Working with your account representative to run this demo with workload-optimized servers is HIGHLY recommended.
 
 To accommodate deployment requirements, this module will create:
 

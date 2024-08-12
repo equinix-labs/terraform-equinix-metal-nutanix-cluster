@@ -50,17 +50,6 @@ jobs:
       with:
         userToken: ${{ secrets.METAL_AUTH_TOKEN }}
 
-    - name: Set up SSH
-      run: |
-        echo $PROJECT_PRIVATE_SSH_KEY > $HOME/.ssh/id_rsa
-        echo $PROJECT_PUBLIC_SSH_KEY > $HOME/.ssh/id_rsa.pub
-        chmod 600 $HOME/.ssh/id_rsa*
-        eval "$(ssh-agent -a $SSH_AUTH_SOCK)"
-        ssh-add $HOME/.ssh/id_rsa
-      env:
-          PROJECT_PRIVATE_SSH_KEY: ${{ steps.metal-project.outputs.projectSSHPrivateKeyBase64 }}
-          PROJECT_PUBLIC_SSH_KEY: ${{ steps.metal-project.outputs.projectSSHPublicKey }}
-
     - name: Terraform Project Variables
       run: |
         echo TF_VAR_metal_auth_token=$TF_VAR_metal_auth_token >> $GITHUB_ENV
@@ -69,6 +58,19 @@ jobs:
       env:
         TF_VAR_metal_auth_token: ${{ steps.metal-project.outputs.projectToken }}
         TF_VAR_metal_project_id: ${{ steps.metal-project.outputs.projectID }}
+  
+    - name: Set up SSH
+      run: |
+        mkdir -p $HOME/.ssh
+        chmod 700 $HOME/.ssh
+        echo $PROJECT_PRIVATE_SSH_KEY > $HOME/.ssh/id_rsa
+        echo $PROJECT_PUBLIC_SSH_KEY > $HOME/.ssh/id_rsa.pub
+        chmod 600 $HOME/.ssh/id_rsa*
+        eval "$(ssh-agent -a $SSH_AUTH_SOCK)"
+        ssh-add $HOME/.ssh/id_rsa
+      env:
+          PROJECT_PRIVATE_SSH_KEY: ${{ steps.metal-project.outputs.projectSSHPrivateKeyBase64 }}
+          PROJECT_PUBLIC_SSH_KEY: ${{ steps.metal-project.outputs.projectSSHPublicKey }}
 
     - name: Terraform Plan
       id: plan

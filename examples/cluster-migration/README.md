@@ -19,7 +19,7 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
     ```sh
     git clone git@github.com:equinix-labs/terraform-equinix-metal-nutanix-cluster.git
     cd terraform-equinix-metal-nutanix-cluster
-    cd examples/nutanix-clusters
+    cd examples/cluster-migration
     ```
 
     1.2. Create the `terraform.tfvars` file:
@@ -95,16 +95,16 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
     nutanix_cluster1_cvim_ip_address = "192.168.97.57"
     nutanix_cluster1_iscsi_data_services_ip = "192.168.99.253"
     nutanix_cluster1_prism_central_ip_address = "192.168.99.252"
-    nutanix_cluster1_ssh_forward_command = "ssh -L 9440:192.168.97.57:9440 -L 19440:192.168.99.252:9440 -i /Users/username/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-qh0f2 root@145.40.91.33"
-    nutanix_cluster1_ssh_private_key = "/Users/example/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-qh0f2"
+    nutanix_cluster1_ssh_forward_command = "ssh -L 9440:192.168.97.57:9440 -L 19440:192.168.99.252:9440 -i /Users/username/terraform-equinix-metal-nutanix-cluster/examples/cluster-migration/ssh-key-qh0f2 root@145.40.91.33"
+    nutanix_cluster1_ssh_private_key = "/Users/example/terraform-equinix-metal-nutanix-cluster/examples/cluster-migration/ssh-key-qh0f2"
     nutanix_cluster1_virtual_ip_address = "192.168.99.254"
 
     nutanix_cluster2_bastion_public_ip = "145.40.91.141"
     nutanix_cluster2_cvim_ip_address = "192.168.102.176"
     nutanix_cluster2_iscsi_data_services_ip = "192.168.103.253"
     nutanix_cluster2_prism_central_ip_address = "192.168.103.252"
-    nutanix_cluster2_ssh_forward_command = "ssh -L 9442:192.168.102.176:9440 -L 19442:192.168.103.252:9440 -i /Users/example/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-lha20 root@145.40.91.141"
-    nutanix_cluster2_ssh_private_key = "/Users/example/Equinix/terraform-equinix-metal-nutanix-cluster/examples/nutanix-clusters/ssh-key-lha20"
+    nutanix_cluster2_ssh_forward_command = "ssh -L 9442:192.168.102.176:9440 -L 19442:192.168.103.252:9440 -i /Users/example/Equinix/terraform-equinix-metal-nutanix-cluster/examples/cluster-migration/ssh-key-lha20 root@145.40.91.141"
+    nutanix_cluster2_ssh_private_key = "/Users/example/Equinix/terraform-equinix-metal-nutanix-cluster/examples/cluster-migration/ssh-key-lha20"
     nutanix_cluster2_virtual_ip_address = "192.168.103.254"
     ```
 
@@ -169,7 +169,7 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
     ```sh
     ssh -L 9440:$nutanix_cluster1_cvim_ip_address:9440 \
-        -L 19440:$nutanix_cluster1_cvim_ip_address:9440 \
+        -L 19440:$nutanix_cluster1_prism_central_ip_address:9440 \
         -i $nutanix_cluster1_ssh_private_key \
         -J root@$nutanix_cluster1_bastion_public_ip \
         admin@$nutanix_cluster1_cvim_ip_address
@@ -180,7 +180,7 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
     ```sh
     ssh -L 9440:$nutanix_cluster2_cvim_ip_address:9440 \
-        -L 19440:$nutanix_cluster2_cvim_ip_address:9440 \
+        -L 19440:$nutanix_cluster2_prism_central_ip_address:9440 \
         -i $nutanix_cluster2_ssh_private_key \
         -J root@$nutanix_cluster2_bastion_public_ip \
         admin@$nutanix_cluster2_cvim_ip_address

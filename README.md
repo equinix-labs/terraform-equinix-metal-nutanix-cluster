@@ -22,7 +22,7 @@ This POC Terraform module is inspired by the [Deploying a multi-node Nutanix clu
 
 By deploying this POC Terraform module, you will get an automated and opinionated minimal Nutanix Cluster that will help provide a quick introduction to the platform's capabilities.
 
-> **⚠️ Warning:** 
+> **⚠️ Warning:**
 > This project is NOT intended to demonstrate best practices or Day-2 operations, including security, scale, monitoring, and disaster recovery. Working with your account representative to run this demo with workload-optimized servers is HIGHLY recommended.
 
 To accommodate deployment requirements, this module will create:
@@ -141,9 +141,9 @@ ssh -i $(terraform output -raw ssh_private_key) $(terraform output -raw nutanix_
 
 This POC allocates a [m3.small.x86](https://deploy.equinix.com/product/servers/m3-small/) node for the Bastion host by default, you can change this to another instance type of your choosing by setting the `metal_bastion_plan` variable.
 
-This POC allocates [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) instances for the Nutanix nodes. Please note that the `nutanix_lts_6_5` and `nutanix_lts_6_5_poc` OS images are only available for certified hardware plans, not all on-demand m3.large.x86 nodes will work, and it is HIGHLY recommended to work with your account representative for access to workload-optimized servers. 
+This POC allocates [m3.large.x86](https://deploy.equinix.com/product/servers/m3-large/) instances for the Nutanix nodes. Please note that the `nutanix_lts_6_5` and `nutanix_lts_6_5_poc` OS images are only available for certified hardware plans, not all on-demand m3.large.x86 nodes will work, and it is HIGHLY recommended to work with your account representative for access to workload-optimized servers.
 
-If you have preapproved access to the `nutanix_lts_6_5_poc` OS images, at the time of writing, we recommend the SL (Seoul), AM (Amsterdam), and TR (Toronto) Metros for deployment. 
+If you have preapproved access to the `nutanix_lts_6_5_poc` OS images, at the time of writing, we recommend the SL (Seoul), AM (Amsterdam), and TR (Toronto) Metros for deployment.
 
 If a Nutanix node fails to provision, please try to `terraform apply` again. A node that fails to provision with the Nutanix AOS will be automatically removed from your project. Terraform will subsequently attempt to replace those servers.
 
@@ -156,6 +156,7 @@ The Nutanix devices have `sshd` configured with `MaxSessions 1`. In most cases t
 Error messages that match this problem:
 
 - `Error chmodding script file to 0777 in remote machine: ssh: rejected: administratively prohibited (open failed)`
+- `Failed to upload script: ssh: rejected: administratively prohibited (open failed)`
 
 ### VLAN Cleanup Failure
 
@@ -172,6 +173,10 @@ terraform destroy
 ### Other Timeouts and Connection issues
 
 This POC project has not ironed out all potential networking and provisioning timing hiccups that can occur. In many situations, running `terraform apply` again will progress the deployment to the next step. If you do not see progress after 3 attempts, open an issue on GitHub: <https://github.com/equinix-labs/terraform-equinix-metal-nutanix-cluster/issues/new>.
+
+Error messages that match this problem:
+
+- `timeout while waiting for state to become 'active, failed' (last state: 'provisioning', timeout:`
 
 ## Examples
 

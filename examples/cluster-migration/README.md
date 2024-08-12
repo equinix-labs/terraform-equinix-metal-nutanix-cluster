@@ -264,8 +264,8 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_nutanix_cluster1"></a> [nutanix\_cluster1](#module\_nutanix\_cluster1) | ../.. | n/a |
-| <a name="module_nutanix_cluster2"></a> [nutanix\_cluster2](#module\_nutanix\_cluster2) | ../.. | n/a |
+| <a name="module_nutanix_cluster1"></a> [nutanix\_cluster1](#module\_nutanix\_cluster1) | equinix-labs/metal-nutanix-cluster/equinix | 0.5.0 |
+| <a name="module_nutanix_cluster2"></a> [nutanix\_cluster2](#module\_nutanix\_cluster2) | equinix-labs/metal-nutanix-cluster/equinix | 0.5.0 |
 
 ## Resources
 

@@ -58,7 +58,7 @@ jobs:
       env:
         TF_VAR_metal_auth_token: ${{ steps.metal-project.outputs.projectToken }}
         TF_VAR_metal_project_id: ${{ steps.metal-project.outputs.projectID }}
-  
+
     - name: Set up SSH
       run: |
         mkdir -p $HOME/.ssh
@@ -82,10 +82,12 @@ jobs:
       timeout-minutes: 120
       run: |
         terraform apply -input=false tfplan
-        ssh-keyscan -H $(terraform output -raw equinix_metal_device.bastion.access_public_ipv4) >> ~/.ssh/known_hosts
-        ssh-keyscan -H $(terraform output -raw equinix_metal_device.nutanix[0].access_private_ipv4) >> ~/.ssh/known_hosts
-        ssh -i $(terraform output -raw ssh_private_key) -j root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address) uname -a
-
+        ssh-add $(terraform output -raw ssh_private_key)
+        ssh-keyscan -H $(terraform output -raw bastion_public_ip) >> ~/.ssh/known_hosts
+        ssh-keyscan -H -p 22 -t rsa -T 10 -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -W %h:%p root@$(terraform output -raw bastion_public_ip)" $(terraform output -raw cvim_ip_address) >> ~/.ssh/known_hosts
+        # Show meaningful status via "cluster status". alternatively, "ncc health_checks run_all", which can take a while
+        # For more commands: https://portal.nutanix.com/page/documents/kbs/details?targetId=kA07V000000LVVSSA4
+        ssh -j root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address) cluster status
     - name: Terraform Destroy with Retry
       id: destroy
       if: ${{ always() }}

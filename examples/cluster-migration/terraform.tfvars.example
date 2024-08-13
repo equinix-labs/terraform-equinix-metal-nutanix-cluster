@@ -2,9 +2,10 @@
 # metal_project_id       = ""                               # The ID of the Metal project in which to deploy to cluster if `create_project` is false.
 # metal_organization_id  = ""                               # The ID of the Metal organization in which to create the project if `create_project` is true.
 # metal_metro            = "sl"                             # The metro to create the cluster in
+# metal_nutanix_os       = "nutanix_lts_6_5"                # The Equinix Metal Nutanix OS image to deploy. nutanix_lts_6_5 requires reserved hardware. nutanix_lts_6_5_poc may be available upon request.
 # create_project         = false                            # (Optional) to use an existing project matching `metal_project_name`, set this to false.
 # create_vlan            = false                            # Whether to create a new VLAN for this project.
 # create_vrf             = true
 # nutanix_node_count    = 1                                 # The number of Nutanix nodes to create. It should be odd number like 1, 3, 5..
-# metal_subnet        = "192.168.96.0/21"                   # Pick an arbitrary private subnet, we recommend a /21 like "192.168.100.0/21"
+# retal_subnet        = "192.168.96.0/21"                   # Pick an arbitrary private subnet, we recommend a /21 like "192.168.100.0/21"
 # nutanix_reservation_ids=[]                                # Hardware reservation IDs to use for the Nutanix nodes

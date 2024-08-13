@@ -6,9 +6,9 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
 
 ## Prerequisites
 
-- Terraform installed on your local machine
+- Terraform and SSH installed on your local machine
 - Equinix Metal account
-- SSH key pair for accessing the Nutanix clusters
+- Equinix Metal Nutanix Certfied Hardware Reservations or preapproved access to the `nutanix_lts_6_5_poc` image.
 
 ## Automated Steps
 
@@ -25,16 +25,17 @@ This example demonstrates how to create two Nutanix clusters and set up a protec
     1.2. Create the `terraform.tfvars` file:
 
     ```hcl
-    metal_auth_token       = ""                               # Equinix Metal API token
-    metal_project_id       = ""                               # The ID of the Metal project in which to deploy to cluster if `create_project` is false.
-    metal_organization_id  = ""                               # The ID of the Metal organization in which to create the project if `create_project` is true.
-    metal_metro            = "sl"                             # The metro to create the cluster in
-    create_project         = false                            # (Optional) to use an existing project matching `metal_project_name`, set this to false.
-    create_vlan            = false                            # Whether to create a new VLAN for this project.
-    create_vrf             = true
-    nutanix_node_count    = 1                                 # The number of Nutanix nodes to create. It should be odd number like 1, 3, 5..
-    metal_subnet        = "192.168.96.0/21"                   # Pick an arbitrary private subnet, we recommend a /21 like "192.168.96.0/21"
-    nutanix_reservation_ids=[]                                # Hardware reservation IDs to use for the Nutanix nodes
+    metal_auth_token        = ""                               # Equinix Metal API token
+    metal_project_id        = ""                               # The ID of the Metal project in which to deploy to cluster if `create_project` is false.
+    metal_organization_id   = ""                               # The ID of the Metal organization in which to create the project if `create_project` is true.
+    metal_metro             = "sl"                             # The metro to create the cluster in
+    create_project          = false                            # (Optional) to use an existing project matching `metal_project_name`, set this to false.
+    create_vlan             = false                            # Whether to create a new VLAN for this project.
+    create_vrf              = true
+    nutanix_node_count      = 1                                # The number of Nutanix nodes to create. It should be odd number like 1, 3, 5..
+    metal_subnet            = "192.168.96.0/21"                # Pick an arbitrary private subnet, we recommend a /21 like "192.168.96.0/21"
+    nutanix_reservation_ids = {cluster_a=[],cluster_b=[]}      # Hardware reservation IDs to use for the Nutanix nodes
+    metal_nutanix_os        = "nutanix_lts_6_5"                # Nutanix OS to deploy. nutanix_lts_6_5 requires reservations. nutanix_lts_6_5_poc may be available on request.
     ```
 
     1.3. Initialize and apply Terraform:

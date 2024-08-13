@@ -66,6 +66,26 @@ variable "metal_subnet" {
   description = "IP pool for all Nutanix Clusters in the example. One bit will be appended to the end and divided between example clusters. (192.168.96.0/21 will result in clusters with ranges 192.168.96.0/22 and 192.168.100.0/22)"
 }
 
+variable "metal_nutanix_os" {
+  type        = string
+  default     = "nutanix_lts_6_5"
+  description = "The Equinix Metal OS to use for the Nutanix nodes. nutanix_lts_6_5 is available for Nutanix certified hardware reservation instances. nutanix_lts_6_5_poc may be available upon request."
+}
+
+
+variable "nutanix_reservation_ids" {
+  type = object({
+    cluster_a = list(string)
+    cluster_b = list(string)
+  })
+  default     = { cluster_a = [], cluster_b = [] }
+  description = <<EOT
+  Hardware reservation IDs to use for the Nutanix nodes. If specified, the length of this list must
+  be the same as `nutanix_node_count` for each cluster.  Each item can be a reservation UUID or `next-available`. If
+  you use reservation UUIDs, make sure that they are in the same metro specified in `metal_metro`.
+  EOT
+}
+
 variable "create_vrf" {
   type        = bool
   default     = true

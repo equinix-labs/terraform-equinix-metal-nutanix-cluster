@@ -27,8 +27,12 @@ variable "create_project" {
 
 variable "nutanix_node_count" {
   type        = number
-  default     = 2
-  description = "The number of Nutanix nodes to create."
+  default     = 1
+  description = "The number of Nutanix nodes to create. This must be an odd number."
+  validation {
+    condition     = var.nutanix_node_count % 2 == 1
+    error_message = "The number of Nutanix nodes must be an odd number."
+  }
 }
 # tflint-ignore: terraform_unused_declarations
 variable "create_vlan" {

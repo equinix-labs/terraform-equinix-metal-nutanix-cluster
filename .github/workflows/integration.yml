@@ -84,7 +84,7 @@ jobs:
         terraform apply -input=false tfplan
         ssh-add $(terraform output -raw ssh_private_key)
         ssh-keyscan -H $(terraform output -raw bastion_public_ip) >> ~/.ssh/known_hosts
-        ssh-keyscan -H -p 22 -t rsa -T 10 -o StrictHostKeyChecking=no -o "ProxyCommand=ssh -W %h:%p root@$(terraform output -raw bastion_public_ip)" $(terraform output -raw cvim_ip_address) >> ~/.ssh/known_hosts
+        ssh-keyscan -H -p 22 -t rsa -T 10 -O StrictHostKeyChecking=no -O "ProxyCommand=ssh -W %h:%p root@$(terraform output -raw bastion_public_ip)" $(terraform output -raw cvim_ip_address) >> ~/.ssh/known_hosts
         # Show meaningful status via "cluster status". alternatively, "ncc health_checks run_all", which can take a while
         # For more commands: https://portal.nutanix.com/page/documents/kbs/details?targetId=kA07V000000LVVSSA4
         ssh -j root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address) cluster status

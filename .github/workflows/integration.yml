@@ -86,7 +86,8 @@ jobs:
         ssh-keyscan -H $(terraform output -raw bastion_public_ip) >> ~/.ssh/known_hosts
         # Show meaningful status via "cluster status". alternatively, "ncc health_checks run_all", which can take a while
         # For more commands: https://portal.nutanix.com/page/documents/kbs/details?targetId=kA07V000000LVVSSA4
-        ssh -o StrictHostKeyChecking=no -J root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address) cluster status
+        apt-get install -y sshpass
+        sshpass -p "${{ secrets.NUTANIX_USER_PASSWORD }}" ssh -t -o StrictHostKeyChecking=no -J root@$(terraform output -raw bastion_public_ip) nutanix@$(terraform output -raw cvim_ip_address) cluster status
     - name: Terraform Destroy with Retry
       id: destroy
       if: ${{ always() }}

@@ -30,7 +30,7 @@ jobs:
       TF_VAR_metal_organization_id: ${{ secrets.METAL_ORGANIZATION_ID }}
     steps:
     - name: Checkout from GitHub
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Add SHORT_SHA env property with commit short SHA
       run: echo "SHORT_SHA=`echo ${{ github.event.pull_request.head.sha }} | cut -c1-8`" >> $GITHUB_ENV
